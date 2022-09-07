@@ -15,6 +15,30 @@ use num_traits::cast::ToPrimitive;
 use rand::{distributions::Uniform, thread_rng, Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 
+use std::mem;
+
+#[repr(C, align(64))]
+struct AlignToSixtyFour([u8; 64]);
+
+unsafe fn aligned_vec(n_u64: usize) -> Vec<u64> {
+    // Lazy math to ensure we always have enough.
+    let n_units = (n_u64 * 8 / mem::size_of::<AlignToSixtyFour>()) + 1;
+
+    let mut aligned: Vec<AlignToSixtyFour> = Vec::with_capacity(n_units);
+
+    let ptr = aligned.as_mut_ptr();
+    let len_units = aligned.len();
+    let cap_units = aligned.capacity();
+
+    mem::forget(aligned);
+
+    Vec::from_raw_parts(
+        ptr as *mut u64,
+        len_units * mem::size_of::<AlignToSixtyFour>() / 8,
+        cap_units * mem::size_of::<AlignToSixtyFour>() / 8,
+    )
+}
+
 /// Structure encapsulating an integer modulus up to 62 bits.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Modulus {
@@ -706,8 +730,11 @@ impl Modulus {
 		seed: <ChaCha8Rng as SeedableRng>::Seed,
 	) -> Vec<u64> {
 		assert_ne!(size, 0);
-		let rng = rand_chacha::ChaCha8Rng::from_seed(seed);
-		rng.sample_iter(self.distribution).take(size).collect_vec()
+		let mut rng = rand_chacha::ChaCha8Rng::from_seed(seed);
+		let mut v = unsafe { aligned_vec(size) };
+		(0..size).for_each(|_| v.push(rng.sample(self.distribution)));
+		// rng.sample_iter(self.distribution).take(size).collect_vec()
+		v
 	}
 
 	/// Length of the serialization of a vector of size `size`.
