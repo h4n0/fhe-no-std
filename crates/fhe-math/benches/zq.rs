@@ -18,6 +18,16 @@ pub fn zq_benchmark(c: &mut Criterion) {
 			b.iter(|| q.add_vec(&mut a, &c));
 		});
 
+		group.bench_function(BenchmarkId::new("add_vec_simd_2", vector_size), |b| {
+			b.iter(|| q.add_vec_simd::<2>(&mut a, &c));
+		});
+		group.bench_function(BenchmarkId::new("add_vec_simd_4", vector_size), |b| {
+			b.iter(|| q.add_vec_simd::<4>(&mut a, &c));
+		});
+		group.bench_function(BenchmarkId::new("add_vec_simd_8", vector_size), |b| {
+			b.iter(|| q.add_vec_simd::<8>(&mut a, &c));
+		});
+
 		group.bench_function(BenchmarkId::new("add_vec_vt", vector_size), |b| unsafe {
 			b.iter(|| q.add_vec_vt(&mut a, &c));
 		});

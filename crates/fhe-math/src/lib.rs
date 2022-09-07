@@ -2,6 +2,7 @@
 #![crate_type = "lib"]
 #![warn(missing_docs, unused_imports)]
 #![feature(bigint_helper_methods, int_log, int_roundings, is_some_with, test)]
+#![feature(portable_simd)]
 
 //! Mathematical utilities for the fhe.rs library.
 
