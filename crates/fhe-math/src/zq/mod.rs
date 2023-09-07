@@ -5,6 +5,8 @@
 pub mod ntt;
 pub mod primes;
 
+use std::simd::{LaneCount, Simd, SupportedLaneCount, SimdPartialOrd};
+
 use crate::errors::{Error, Result};
 use fhe_util::{is_prime, transcode_from_bytes, transcode_to_bytes};
 use itertools::{izip, Itertools};
@@ -712,6 +714,55 @@ impl Modulus {
         let p_nbits = 64 - (self.p - 1).leading_zeros() as usize;
         transcode_from_bytes(b, p_nbits)
     }
+
+
+    
+	pub fn add_vec2(&self, a: &mut [u64], b: &[u64]) {
+    		debug_assert_eq!(a.len(), b.len());
+
+		izip!(a.iter_mut(), b.iter()).for_each(|(ai, bi)| *ai = self.add(*ai, *bi));
+	}
+
+	pub fn add_simd<const LANES: usize>(
+    		&self,
+		a: Simd<u64, LANES>,
+		b: Simd<u64, LANES>,
+	) -> Simd<u64, LANES>
+	where
+		LaneCount<LANES>: SupportedLaneCount,
+	{
+    		let p = Simd::<u64, LANES>::from_array([self.p; LANES]);
+		Self::reduce1_simd(a + b, p)
+	}
+
+	pub fn reduce1_simd<const LANES: usize>(
+    		a: Simd<u64, LANES>,
+		p: Simd<u64, LANES>,
+	) -> Simd<u64, LANES>
+	where
+		LaneCount<LANES>: SupportedLaneCount,
+	{
+    		let a_minus_p = a - p;
+		a.simd_gt(p).select(a_minus_p, a)
+	}
+
+	pub fn add_vec_simd<const LANES: usize>(&self, a: &mut [u64], b: &[u64])
+	where
+		LaneCount<LANES>: SupportedLaneCount,
+	{
+    		let p = Simd::<u64, LANES>::from_array([self.p; LANES]);
+		let (a1, a2, a3) = a.as_simd_mut::<LANES>();
+		let (b1, b2, b3) = b.as_simd::<LANES>();
+		if a1.len() == b1.len() && a2.len() == b2.len() && a3.len() == b3.len() {
+    			self.add_vec(a1, b1);
+			izip!(a2.iter_mut(), b2.iter())
+				.for_each(|(ai, bi)| *ai = Self::reduce1_simd(*ai + *bi, p));
+			self.add_vec(a3, b3);
+		} else {
+    		println!("Fallback");
+			self.add_vec(a, b)
+		}
+	}
 }
 
 #[cfg(test)]
@@ -737,6 +788,22 @@ mod tests {
             })
             .boxed()
     }
+
+    #[test]
+	fn debug() {
+		let p = Modulus::new(4611686018326724609).unwrap();
+
+        let mut rng = thread_rng();
+
+		let mut a = p.random_vec(128, &mut rng);
+		let mut a_simd = a.clone();
+		let b = p.random_vec(128, &mut rng);
+
+		p.add_vec(&mut a, &b);
+		p.add_vec_simd::<8>(&mut a_simd, &b);
+
+		assert_eq!(a, a_simd);
+	}
 
     proptest! {
         #[test]
