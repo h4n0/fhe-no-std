@@ -5,6 +5,12 @@
 pub mod ntt;
 pub mod primes;
 
+use std::arch::aarch64::{
+    uint64x2_t, uint64x2x4_t, vaddq_u64, vbsl_u64, vbslq_u64, vcgeq_u64, vcgezq_s64, vcleq_u64,
+    vclezq_s64, vld1q_u64, vld1q_u64_x4, vld4q_lane_u64, vld4q_u64, vreinterpretq_s64_u64,
+    vst1q_u64, vst1q_u64_x4, vst4_u64, vst4q_u64, vsubq_u64,
+};
+
 use crate::errors::{Error, Result};
 use fhe_util::{is_prime, transcode_from_bytes, transcode_to_bytes};
 use itertools::{izip, Itertools};
@@ -197,6 +203,182 @@ impl Modulus {
         debug_assert_eq!(a.len(), b.len());
 
         izip!(a.iter_mut(), b.iter()).for_each(|(ai, bi)| *ai = self.add(*ai, *bi));
+    }
+
+    pub unsafe fn add_simd_2(&self, a: uint64x2_t, b: uint64x2_t) -> uint64x2_t {
+        vaddq_u64(a, b)
+    }
+
+    pub unsafe fn add_simd_4(a: uint64x2_t, b: uint64x2_t, p: uint64x2_t) -> uint64x2_t {
+        let sum = vaddq_u64(a, b);
+        let sum_minus_p = vsubq_u64(sum, p);
+        vbslq_u64(
+            vcgezq_s64(vreinterpretq_s64_u64(sum_minus_p)),
+            sum_minus_p,
+            sum,
+        )
+    }
+
+    pub unsafe fn reduce_simd_2(a: uint64x2_t, p: uint64x2_t) -> uint64x2_t {
+        let a_minus_p = vsubq_u64(a, p);
+        vbslq_u64(vcgezq_s64(vreinterpretq_s64_u64(a_minus_p)), a_minus_p, a)
+        // let c: uint64x2_t = vcgeq_u64(a, a_minus_p);
+        // vbslq_u64(c, a, a_minus_p)
+    }
+
+    pub unsafe fn add_simd(&self, a: uint64x2x4_t, b: uint64x2x4_t) -> uint64x2x4_t {
+        uint64x2x4_t(
+            vaddq_u64(a.0, b.0),
+            vaddq_u64(a.1, b.1),
+            vaddq_u64(a.2, b.2),
+            vaddq_u64(a.3, b.3),
+        )
+    }
+
+    pub unsafe fn reduce_simd(a: uint64x2x4_t, p: uint64x2_t) -> uint64x2x4_t {
+        let a_minus_p = uint64x2x4_t(
+            vsubq_u64(a.0, p),
+            vsubq_u64(a.1, p),
+            vsubq_u64(a.2, p),
+            vsubq_u64(a.3, p),
+        );
+        let c = uint64x2x4_t(
+            vcgezq_s64(vreinterpretq_s64_u64(a_minus_p.0)),
+            vcgezq_s64(vreinterpretq_s64_u64(a_minus_p.1)),
+            vcgezq_s64(vreinterpretq_s64_u64(a_minus_p.2)),
+            vcgezq_s64(vreinterpretq_s64_u64(a_minus_p.3)),
+        );
+        uint64x2x4_t(
+            vbslq_u64(c.0, a_minus_p.0, a.0),
+            vbslq_u64(c.1, a_minus_p.1, a.1),
+            vbslq_u64(c.2, a_minus_p.2, a.2),
+            vbslq_u64(c.3, a_minus_p.3, a.3),
+        )
+    }
+
+    pub unsafe fn add_vec_simd(&self, a: &mut [u64], b: &[u64]) {
+        debug_assert_eq!(a.len(), b.len());
+
+        let mut p = vld1q_u64([self.p - 1, self.p].as_ptr());
+        p = vld1q_u64([self.p, self.p].as_ptr());
+
+        let n = a.len() >> 3;
+        let mut a_ptr = a.as_ptr();
+        let mut b_ptr = b.as_ptr();
+        let mut a_mut_ptr = a.as_mut_ptr();
+        for _i in 0..(n - 1) as isize {
+            let u = vld1q_u64_x4(a_ptr);
+            let v = vld1q_u64_x4(b_ptr);
+            let w2 = Self::reduce_simd(self.add_simd(u, v), p);
+            vst1q_u64_x4(a_mut_ptr, w2);
+            a_ptr = a_ptr.offset(8);
+            b_ptr = b_ptr.offset(8);
+            a_mut_ptr = a_mut_ptr.offset(8);
+        }
+        let u = vld1q_u64_x4(a_ptr);
+        let v = vld1q_u64_x4(b_ptr);
+        let w2 = Self::reduce_simd(self.add_simd(u, v), p);
+        vst1q_u64_x4(a_mut_ptr, w2);
+    }
+
+    pub unsafe fn add_vec_simd_2(&self, a: &mut [u64], b: &[u64]) {
+        debug_assert_eq!(a.len(), b.len());
+
+        let mut p = vld1q_u64([self.p - 1, self.p].as_ptr());
+        p = vld1q_u64([self.p, self.p].as_ptr());
+
+        let n = a.len() >> 1;
+        let mut a_ptr = a.as_ptr();
+        let mut b_ptr = b.as_ptr();
+        let mut a_mut_ptr = a.as_mut_ptr();
+        for _i in 0..(n - 1) as isize {
+            let u = vld1q_u64(a_ptr);
+            let v = vld1q_u64(b_ptr);
+            let w2 = Self::reduce_simd_2(self.add_simd_2(u, v), p);
+            vst1q_u64(a_mut_ptr, w2);
+            a_ptr = a_ptr.offset(2);
+            b_ptr = b_ptr.offset(2);
+            a_mut_ptr = a_mut_ptr.offset(2);
+        }
+        let u = vld1q_u64(a_ptr);
+        let v = vld1q_u64(b_ptr);
+        let w2 = Self::reduce_simd_2(self.add_simd_2(u, v), p);
+        vst1q_u64(a_mut_ptr, w2);
+    }
+
+    pub unsafe fn add_vec_simd_3(&self, a: &mut [u64], b: &[u64]) {
+        debug_assert_eq!(a.len(), b.len());
+
+        let p = vld1q_u64([self.p, self.p].as_ptr());
+
+        let n = a.len() >> 1;
+        for i in 0..n as isize {
+            let u = vld1q_u64(a.as_ptr().offset(i << 1));
+            let v = vld1q_u64(b.as_ptr().offset(i << 1));
+            let w2 = Self::reduce_simd_2(self.add_simd_2(u, v), p);
+            vst1q_u64(a.as_mut_ptr().offset(i << 1), w2);
+        }
+    }
+
+    pub unsafe fn add_vec_simd_4(&self, a: &mut [u64], b: &[u64]) {
+        debug_assert_eq!(a.len(), b.len());
+
+        let p = vld1q_u64([self.p, self.p].as_ptr());
+
+        let n = a.len() >> 1;
+        for i in 0..n {
+            let u = vld1q_u64(a.get_unchecked(i << 1));
+            let v = vld1q_u64(b.get_unchecked(i << 1));
+            let sum = vaddq_u64(u, v);
+            let sum_minus_p = vsubq_u64(sum, p);
+            let w2 = vbslq_u64(
+                vcgezq_s64(vreinterpretq_s64_u64(sum_minus_p)),
+                sum_minus_p,
+                sum,
+            );
+            vst1q_u64(a.get_unchecked_mut(i << 1), w2);
+        }
+
+        // let n = a.len() >> 3;
+        // for i in 0..n {
+        //     let u = vld1q_u64_x4(a.get_unchecked(i << 3));
+        //     let v = vld1q_u64_x4(b.get_unchecked(i << 3));
+        //     let sum = uint64x2x4_t(
+        //         vaddq_u64(u.0, v.0),
+        //         vaddq_u64(u.1, v.1),
+        //         vaddq_u64(u.2, v.2),
+        //         vaddq_u64(u.3, v.3),
+        //     );
+        //     let sum_minus_p = uint64x2x4_t(
+        //         vsubq_u64(sum.0, p),
+        //         vsubq_u64(sum.1, p),
+        //         vsubq_u64(sum.2, p),
+        //         vsubq_u64(sum.3, p),
+        //     );
+        //     let w = uint64x2x4_t(
+        //         vbslq_u64(
+        //             vcgezq_s64(vreinterpretq_s64_u64(sum_minus_p.0)),
+        //             sum_minus_p.0,
+        //             sum.0,
+        //         ),
+        //         vbslq_u64(
+        //             vcgezq_s64(vreinterpretq_s64_u64(sum_minus_p.1)),
+        //             sum_minus_p.1,
+        //             sum.1,
+        //         ),
+        //         vbslq_u64(
+        //             vcgezq_s64(vreinterpretq_s64_u64(sum_minus_p.2)),
+        //             sum_minus_p.2,
+        //             sum.2,
+        //         ),
+        //         vbslq_u64(
+        //             vcgezq_s64(vreinterpretq_s64_u64(sum_minus_p.3)),
+        //             sum_minus_p.3,
+        //             sum.3,
+        //         ),
+        //     );
+        //     vst4q_u64(a.get_unchecked_mut(i << 3), w);
+        // }
     }
 
     /// Modular addition of vectors in place in variable time.
@@ -716,6 +898,11 @@ impl Modulus {
 
 #[cfg(test)]
 mod tests {
+    use std::arch::aarch64::{
+        uint64x2_t, uint64x2x4_t, vaddq_u64, vld1q_u64_x4, vld4q_u64, vqaddq_u64,
+    };
+    use std::simd::Simd;
+
     use super::{primes, Modulus};
     use fhe_util::catch_unwind;
     use itertools::{izip, Itertools};
@@ -1084,5 +1271,39 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn simd() {
+        let q = Modulus::new(10).unwrap();
+        let mut a = [1u64, 7, 3, 4, 5, 6, 7, 8, 1u64, 2, 3, 4, 5, 6, 7, 8];
+        let b = [2u64, 3, 4, 5, 6, 7, 8, 1, 2u64, 3, 4, 5, 6, 7, 8, 1];
+        unsafe {
+            q.add_vec_simd(&mut a, &b);
+        }
+        println!("{:?}", a);
+    }
+
+    #[test]
+    fn simd_2() {
+        let q = Modulus::new(10).unwrap();
+        let mut a = [1u64, 7, 3, 4, 5, 6, 7, 8, 1u64, 2, 3, 4, 5, 6, 7, 8];
+        let b = [2u64, 3, 4, 5, 6, 7, 8, 1, 2u64, 3, 4, 5, 6, 7, 8, 1];
+        unsafe {
+            q.add_vec_simd_2(&mut a, &b);
+        }
+        println!("{:?}", a);
+    }
+
+
+    #[test]
+    fn simd_4() {
+        let q = Modulus::new(10).unwrap();
+        let mut a = [1u64, 7, 3, 4, 5, 6, 7, 8, 1u64, 2, 3, 4, 5, 6, 7, 8];
+        let b = [2u64, 3, 4, 5, 6, 7, 8, 1, 2u64, 3, 4, 5, 6, 7, 8, 1];
+        unsafe {
+            q.add_vec_simd_4(&mut a, &b);
+        }
+        println!("{:?}", a);
     }
 }
