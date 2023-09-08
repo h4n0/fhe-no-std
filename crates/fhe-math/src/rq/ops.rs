@@ -44,6 +44,14 @@ impl AddAssign<&Poly> for Poly {
                 qi.add_vec(v1.as_slice_mut().unwrap(), v2.as_slice().unwrap())
             });
         }
+        // izip!(
+        //     self.coefficients.outer_iter_mut(),
+        //     p.coefficients.outer_iter(),
+        //     self.ctx.q.iter()
+        // )
+        // .for_each(|(mut v1, v2, qi)| unsafe {
+        //     qi.add_vec_simd(v1.as_slice_mut().unwrap(), v2.as_slice().unwrap())
+        // });
     }
 }
 

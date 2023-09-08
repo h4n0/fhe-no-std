@@ -5,7 +5,7 @@
 pub mod ntt;
 pub mod primes;
 
-use std::simd::{u64x16, SimdPartialOrd, Simd, usizex16, SimdOrd};
+use std::simd::{u64x16, SimdPartialOrd, Simd, usizex16, SimdOrd, u64x8};
 
 use crate::errors::{Error, Result};
 use fhe_util::{is_prime, transcode_from_bytes, transcode_to_bytes};
@@ -249,23 +249,21 @@ impl Modulus {
         debug_assert_eq!(n, b.len());
 
         let p = u64x16::splat(self.p);
-
         if n % 16 == 0 {
-            let n = n / 16;
+            let a_chunks = a.chunks_exact_mut(16);
+            let b_chunks = b.chunks_exact(16);
 
-            for i in 0..n {
-                let a_simd = u64x16::from_slice(&a[(i * 16)..(i * 16 + 16)]);
-                let b_simd = u64x16::from_slice(&b[(i * 16)..(i * 16 + 16)]);
-                let a_plus_b = a_simd + b_simd;
-                let a_plus_b_minus_p = a_plus_b - p;
-                let blend = a_plus_b.simd_min(a_plus_b_minus_p);
-                blend.copy_to_slice(&mut a[(i * 16)..(i * 16 + 16)]);               
+            for (ai, bi) in izip!(a_chunks, b_chunks) {   
+                let mut a_simd = u64x16::from_slice(ai);
+                let mut b_simd = u64x16::from_slice(bi);
+                a_simd += b_simd;
+                b_simd = a_simd - p;
+                a_simd.simd_min(b_simd).copy_to_slice(ai);
             }
         } else {
             self.add_vec(a, b)
         }
     }
-
 
     /// Modular subtraction of vectors in place in constant time.
     ///
@@ -317,6 +315,27 @@ impl Modulus {
             }
         } else {
             izip!(a.iter_mut(), b.iter()).for_each(|(ai, bi)| *ai = self.sub_vt(*ai, *bi));
+        }
+    }
+
+    pub unsafe fn sub_vec_simd(&self, a: &mut [u64], b: &[u64]) {
+        let n = a.len();
+        debug_assert_eq!(n, b.len());
+
+        let p = u64x16::splat(self.p);
+        if n % 16 == 0 {
+            let a_chunks = a.chunks_exact_mut(16);
+            let b_chunks = b.chunks_exact(16);
+
+            for (ai, bi) in izip!(a_chunks, b_chunks) {   
+                let mut a_simd = u64x16::from_slice(ai);
+                let mut b_simd = u64x16::from_slice(bi);
+                a_simd -= b_simd;
+                b_simd = a_simd + p;
+                a_simd.simd_min(b_simd).copy_to_slice(ai);
+            }
+        } else {
+            self.sub_vec(a, b)
         }
     }
 
@@ -1112,12 +1131,23 @@ mod tests {
     }
 
     #[test]
-    fn simd() {
+    fn add_vec_simd() {
         let mut a = [0u64, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3];
         let b = [0u64, 7, 8, 9, 8, 7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9];
 
         let q = Modulus::new(10).unwrap();
         unsafe { q.add_vec_simd(&mut a, &b) };
+
+        println!("{:?}", a);
+    }
+
+    #[test]
+    fn sub_vec_simd() {
+        let mut a = [0u64, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3];
+        let b = [0u64, 7, 8, 9, 8, 7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9];
+
+        let q = Modulus::new(10).unwrap();
+        unsafe { q.sub_vec_simd(&mut a, &b) };
 
         println!("{:?}", a);
     }
