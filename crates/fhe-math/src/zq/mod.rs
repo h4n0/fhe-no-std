@@ -5,6 +5,8 @@
 pub mod ntt;
 pub mod primes;
 
+use std::arch::x86_64::{_mm256_set1_epi64x, _mm256_loadu_epi64, _mm256_add_epi64, _mm256_sub_epi64, _mm256_cmpgt_epi64_mask, _mm256_mask_blend_epi64, _mm256_storeu_epi64, _mm256_cmpgt_epi64, _mm256_blendv_epi8};
+
 use crate::errors::{Error, Result};
 use fhe_util::{is_prime, transcode_from_bytes, transcode_to_bytes};
 use itertools::{izip, Itertools};
@@ -239,6 +241,23 @@ impl Modulus {
             }
         } else {
             izip!(a.iter_mut(), b.iter()).for_each(|(ai, bi)| *ai = self.add_vt(*ai, *bi));
+        }
+    }
+
+    pub unsafe fn add_vec_simd(&self, a: &mut [u64], b: &[u64]) {
+        debug_assert_eq!(a.len(), b.len());
+
+        let p = _mm256_set1_epi64x(self.p as i64);
+        
+        let n = a.len() >> 2;
+        for i in 0..n as isize {
+            let u = _mm256_loadu_epi64(a.as_ptr().offset(i << 2) as *const i64);
+            let v = _mm256_loadu_epi64(b.as_ptr().offset(i << 2) as *const i64);
+            let sum = _mm256_add_epi64(u, v);
+            let sum_minus_p = _mm256_sub_epi64(sum, p);
+            let c = _mm256_cmpgt_epi64(p, sum);
+            let w2 = _mm256_blendv_epi8(sum_minus_p, sum, c);
+            _mm256_storeu_epi64(a.as_mut_ptr().offset(i << 2) as *mut i64, w2);
         }
     }
 
@@ -1084,5 +1103,16 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn simd() {
+        let q = Modulus::new(10).unwrap();
+        let mut a = [1u64, 7, 3, 4, 5, 6, 7, 8, 1u64, 2, 3, 4, 5, 6, 7, 8];
+        let b = [2u64, 3, 4, 5, 6, 7, 8, 1, 2u64, 3, 4, 5, 6, 7, 8, 1];
+        unsafe {
+            q.add_vec_simd(&mut a, &b);
+        }
+        println!("{:?}", a);
     }
 }
