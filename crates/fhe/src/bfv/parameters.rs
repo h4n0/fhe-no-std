@@ -2,6 +2,7 @@
 
 use crate::proto::bfv::Parameters;
 use crate::{Error, ParametersError, Result};
+use fhe_math::ntt::traits::NttOp;
 use fhe_math::{
     ntt::NttOperator,
     rns::{RnsContext, ScalingFactor},

@@ -2,8 +2,19 @@
 
 use fhe_util::is_prime;
 
+/// Traits for the NTT.
+pub mod traits;
+
+// The native NTT operator.
 mod native;
+#[cfg(not(feature = "concrete-ntt"))]
 pub use native::NttOperator;
+
+// The `concrete-ntt` NTT operator.
+#[cfg(feature = "concrete-ntt")]
+mod concrete;
+#[cfg(feature = "concrete-ntt")]
+pub use concrete::NttOperator;
 
 /// Returns whether a modulus p is prime and supports the Number Theoretic
 /// Transform of size n.
@@ -19,7 +30,7 @@ pub(crate) fn supports_ntt(p: u64, n: usize) -> bool {
 mod tests {
     use rand::thread_rng;
 
-    use super::{supports_ntt, NttOperator};
+    use super::{supports_ntt, traits::NttOp, NttOperator};
     use crate::zq::Modulus;
 
     #[test]

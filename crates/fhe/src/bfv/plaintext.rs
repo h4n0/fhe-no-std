@@ -3,7 +3,10 @@ use crate::{
     bfv::{BfvParameters, Encoding, PlaintextVec},
     Error, Result,
 };
-use fhe_math::rq::{traits::TryConvertFrom, Context, Poly, Representation};
+use fhe_math::{
+    ntt::traits::NttOp,
+    rq::{traits::TryConvertFrom, Context, Poly, Representation},
+};
 use fhe_traits::{FheDecoder, FheEncoder, FheParametrized, FhePlaintext};
 use std::sync::Arc;
 use zeroize::{Zeroize, ZeroizeOnDrop, Zeroizing};

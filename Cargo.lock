@@ -12,6 +12,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "aligned-vec"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4aa90d7ce82d4be67b64039a3d588d38dbcc6736577de4a847025ce5b0c468d1"
+
+[[package]]
 name = "anes"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -76,6 +82,12 @@ name = "bumpalo"
 version = "3.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f30e7476521f6f8af1a1c4c0b8cc94f0bee37d91763d0ca2665f299b6cd8aec"
+
+[[package]]
+name = "bytemuck"
+version = "1.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "374d28ec25809ee0e23827c2ab573d729e293f281dfe393500e7ad618baa61c6"
 
 [[package]]
 name = "byteorder"
@@ -152,6 +164,16 @@ name = "clap_lex"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cd7cc57abe963c6d3b9d8be5b06ba7c8957a930305ca90304f24ef040aa6f961"
+
+[[package]]
+name = "concrete-ntt"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aeae2d782381ec4170379f7e7527cb9999e5528166f33f4ab650aafa6eeb62fb"
+dependencies = [
+ "aligned-vec",
+ "pulp",
+]
 
 [[package]]
 name = "console"
@@ -338,6 +360,7 @@ dependencies = [
 name = "fhe-math"
 version = "0.1.0-beta.7"
 dependencies = [
+ "concrete-ntt",
  "criterion",
  "ethnum",
  "fhe-traits",
@@ -821,6 +844,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e081b29f63d83a4bc75cfc9f3fe424f9156cf92d8a4f0c9407cce9a1b67327cf"
 dependencies = [
  "prost",
+]
+
+[[package]]
+name = "pulp"
+version = "0.11.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "866e8018d6397b0717100dd4a7948fc8cbc8c4b8ce3e39e98a0e1e878d3ba925"
+dependencies = [
+ "bytemuck",
 ]
 
 [[package]]

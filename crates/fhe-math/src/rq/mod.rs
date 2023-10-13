@@ -16,7 +16,7 @@ pub use ops::dot_product;
 use sha2::{Digest, Sha256};
 
 use self::{scaler::Scaler, switcher::Switcher, traits::TryConvertFrom};
-use crate::{Error, Result};
+use crate::{ntt::traits::NttOp, Error, Result};
 use fhe_util::sample_vec_cbd;
 use itertools::{izip, Itertools};
 use ndarray::{s, Array2, ArrayView2, Axis};

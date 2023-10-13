@@ -1,6 +1,9 @@
 use std::{cmp::min, sync::Arc};
 
-use fhe_math::rq::{traits::TryConvertFrom, Poly, Representation};
+use fhe_math::{
+    ntt::traits::NttOp,
+    rq::{traits::TryConvertFrom, Poly, Representation},
+};
 use fhe_traits::{FheEncoder, FheEncoderVariableTime, FheParametrized, FhePlaintext};
 use zeroize::{Zeroize, ZeroizeOnDrop};
 

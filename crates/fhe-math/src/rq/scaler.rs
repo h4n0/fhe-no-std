@@ -4,6 +4,7 @@
 
 use super::{Context, Poly, Representation};
 use crate::{
+    ntt::traits::NttOp,
     rns::{RnsScaler, ScalingFactor},
     Error, Result,
 };
