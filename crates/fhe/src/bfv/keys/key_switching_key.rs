@@ -417,7 +417,7 @@ mod tests {
     use crate::proto::bfv::KeySwitchingKey as KeySwitchingKeyProto;
     use crate::Error;
     extern crate alloc;
-    use alloc::vec;
+    
     use alloc::vec::Vec;
     use fhe_math::{
         rns::RnsContext,

@@ -3,7 +3,6 @@ use fhe_math::{ntt::NttOperator, zq::Modulus};
 use rand::thread_rng;
 extern crate alloc;
 use alloc::sync::Arc;
-use alloc::string::ToString;
 
 pub fn ntt_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("ntt");

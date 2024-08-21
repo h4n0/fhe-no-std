@@ -1,6 +1,5 @@
 extern crate alloc;
 use alloc::string::String;
-pub use alloc::string::ToString;
 use thiserror_no_std::Error;
 
 /// The Result type for this library.

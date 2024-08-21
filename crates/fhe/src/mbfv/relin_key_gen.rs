@@ -376,7 +376,7 @@ impl Aggregate<RelinKeyShare<R2>> for RelinearizationKey {
 #[cfg(test)]
 mod tests {
     extern crate alloc;
-    use alloc::string::ToString;
+    
     use alloc::sync::Arc;
     use alloc::vec;
     use alloc::vec::Vec;

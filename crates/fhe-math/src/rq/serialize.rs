@@ -30,7 +30,7 @@ mod tests {
     use crate::Error;
 
     extern crate alloc;
-    use alloc::string::ToString;
+    
     use alloc::sync::Arc;
 
     use fhe_traits::{DeserializeWithContext, Serialize};

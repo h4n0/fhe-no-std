@@ -1,6 +1,5 @@
 use core::{cmp::min, ops::Deref};
 extern crate alloc;
-use alloc::boxed::Box;
 use alloc::string::ToString;
 use alloc::sync::Arc;
 use alloc::vec;

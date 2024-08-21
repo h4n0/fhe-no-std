@@ -4,7 +4,6 @@ use num_bigint::BigUint;
 use rand::{thread_rng, RngCore};
 extern crate alloc;
 use alloc::sync::Arc;
-use alloc::string::ToString;
 
 pub fn rns_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("rns");

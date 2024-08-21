@@ -4,10 +4,7 @@ use fhe_math::rq::{dot_product as poly_dot_product, traits::TryConvertFrom, Poly
 use itertools::{izip, Itertools};
 use ndarray::{Array, Array2};
 extern crate alloc;
-use alloc::boxed::Box;
-use alloc::sync::Arc;
 use alloc::string::ToString;
-use alloc::vec;
 use alloc::vec::Vec;
 
 use crate::{

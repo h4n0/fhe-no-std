@@ -459,7 +459,7 @@ where
 mod tests {
     extern crate alloc;
     use crate::Error;
-    use alloc::string::ToString;
+    
     use alloc::sync::Arc;
     use itertools::{izip, Itertools};
     use rand::thread_rng;

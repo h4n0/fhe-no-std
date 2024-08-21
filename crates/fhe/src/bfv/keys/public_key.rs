@@ -10,7 +10,6 @@ use prost::Message;
 use rand::{CryptoRng, RngCore};
 extern crate alloc;
 use alloc::sync::Arc;
-use alloc::string::ToString;
 use alloc::vec;
 use alloc::vec::Vec;
 use zeroize::Zeroizing;

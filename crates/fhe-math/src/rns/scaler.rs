@@ -345,13 +345,12 @@ mod tests {
     extern crate alloc;
     use crate::Error;
     use alloc::sync::Arc;
-use alloc::string::ToString;
 
     use super::RnsScaler;
     use crate::rns::{scaler::ScalingFactor, RnsContext};
     use ndarray::ArrayView1;
     use num_bigint::BigUint;
-    use num_traits::{ToPrimitive, Zero};
+    use num_traits::ToPrimitive;
     use rand::{thread_rng, RngCore};
 
     #[test]

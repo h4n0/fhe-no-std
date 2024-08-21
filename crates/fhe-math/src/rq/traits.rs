@@ -5,7 +5,6 @@
 use super::{Context, Representation};
 use crate::Result;
 extern crate alloc;
-use alloc::string::ToString;
 use alloc::sync::Arc;
 
 /// Conversions to create polynomials.

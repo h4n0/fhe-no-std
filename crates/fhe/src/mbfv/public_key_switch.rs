@@ -2,7 +2,6 @@ extern crate alloc;
 use alloc::string::ToString;
 use alloc::sync::Arc;
 use alloc::vec;
-use alloc::vec::Vec;
 
 use fhe_math::rq::traits::TryConvertFrom;
 use fhe_math::rq::{Poly, Representation};

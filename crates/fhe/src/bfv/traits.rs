@@ -4,7 +4,6 @@ use crate::bfv::BfvParameters;
 use crate::Result;
 extern crate alloc;
 use alloc::sync::Arc;
-use alloc::string::ToString;
 
 /// Conversions.
 ///

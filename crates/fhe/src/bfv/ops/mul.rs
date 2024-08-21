@@ -1,5 +1,4 @@
 extern crate alloc;
-use alloc::boxed::Box;
 use alloc::sync::Arc;
 use alloc::string::ToString;
 use alloc::vec;

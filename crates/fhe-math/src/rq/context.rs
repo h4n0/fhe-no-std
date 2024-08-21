@@ -160,7 +160,6 @@ mod tests {
     extern crate alloc;
     use crate::Error;
     use alloc::sync::Arc;
-use alloc::string::ToString;
 
     use crate::ntt::supports_ntt;
     use crate::rq::Context;

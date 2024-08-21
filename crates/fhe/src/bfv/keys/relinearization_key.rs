@@ -3,7 +3,6 @@
 extern crate alloc;
 use alloc::sync::Arc;
 use alloc::string::ToString;
-use alloc::vec;
 use alloc::vec::Vec;
 
 use super::key_switching_key::KeySwitchingKey;
@@ -166,8 +165,7 @@ mod tests {
     use fhe_traits::{FheDecoder, FheDecrypter};
     use rand::thread_rng;
     extern crate alloc;
-    use alloc::sync::Arc;
-use alloc::string::ToString;
+    
     use alloc::vec;
     use alloc::vec::Vec;
 
