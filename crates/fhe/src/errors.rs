@@ -1,7 +1,10 @@
-use thiserror::Error;
+extern crate alloc;
+use alloc::string::String;
+pub use alloc::string::ToString;
+use thiserror_no_std::Error;
 
 /// The Result type for this library.
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = core::result::Result<T, Error>;
 
 /// Enum encapsulating all the possible errors from this library.
 #[derive(Debug, Error, PartialEq, Eq)]
@@ -82,6 +85,8 @@ pub enum ParametersError {
 #[cfg(test)]
 mod tests {
     use crate::{Error, ParametersError};
+    extern crate alloc;
+    use alloc::string::ToString;
 
     #[test]
     fn error_strings() {

@@ -2,14 +2,17 @@
 
 //! Polynomial scaler.
 
+extern crate alloc;
+
 use super::{Context, Poly, Representation};
 use crate::{
     rns::{RnsScaler, ScalingFactor},
     Error, Result,
 };
+use alloc::string::ToString;
+use alloc::sync::Arc;
 use itertools::izip;
 use ndarray::{s, Array2, Axis};
-use std::sync::Arc;
 
 /// Context extender.
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
@@ -138,11 +141,11 @@ impl Scaler {
 mod tests {
     use super::{Scaler, ScalingFactor};
     use crate::rq::{Context, Poly, Representation};
+    use crate::Error;
     use itertools::Itertools;
     use num_bigint::BigUint;
     use num_traits::{One, Zero};
     use rand::thread_rng;
-    use std::error::Error;
 
     // Moduli to be used in tests.
     static Q: &[u64; 3] = &[
@@ -158,7 +161,7 @@ mod tests {
     ];
 
     #[test]
-    fn scaler() -> Result<(), Box<dyn Error>> {
+    fn scaler() -> Result<(), Error> {
         let mut rng = thread_rng();
         let ntests = 100;
         let from = Context::new_arc(Q, 16)?;

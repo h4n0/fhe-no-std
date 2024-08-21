@@ -4,7 +4,7 @@
 
 pub mod primes;
 
-use std::ops::Deref;
+use core::ops::Deref;
 
 use crate::errors::{Error, Result};
 use derivative::Derivative;

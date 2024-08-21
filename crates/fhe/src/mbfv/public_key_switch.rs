@@ -1,4 +1,8 @@
-use std::sync::Arc;
+extern crate alloc;
+use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec;
+use alloc::vec::Vec;
 
 use fhe_math::rq::traits::TryConvertFrom;
 use fhe_math::rq::{Poly, Representation};
@@ -112,7 +116,10 @@ impl Aggregate<PublicKeySwitchShare> for Ciphertext {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
+    extern crate alloc;
+    use alloc::sync::Arc;
+    use alloc::vec;
+    use alloc::vec::Vec;
 
     use fhe_traits::{FheDecrypter, FheEncoder, FheEncrypter};
     use rand::thread_rng;

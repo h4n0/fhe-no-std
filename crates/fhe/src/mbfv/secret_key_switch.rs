@@ -1,4 +1,8 @@
-use std::sync::Arc;
+extern crate alloc;
+use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec;
+use alloc::vec::Vec;
 
 use fhe_math::{
     rq::{traits::TryConvertFrom, Poly, Representation},
@@ -178,7 +182,11 @@ impl Aggregate<DecryptionShare> for Plaintext {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
+    extern crate alloc;
+    use alloc::string::ToString;
+    use alloc::sync::Arc;
+    use alloc::vec;
+    use alloc::vec::Vec;
 
     use fhe_traits::{FheDecoder, FheEncoder, FheEncrypter};
     use rand::thread_rng;

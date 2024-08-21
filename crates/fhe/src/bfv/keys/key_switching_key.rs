@@ -14,7 +14,12 @@ use itertools::{izip, Itertools};
 use num_bigint::BigUint;
 use rand::{CryptoRng, Rng, RngCore, SeedableRng};
 use rand_chacha::ChaCha8Rng;
-use std::sync::Arc;
+extern crate alloc;
+use alloc::boxed::Box;
+use alloc::sync::Arc;
+use alloc::string::ToString;
+use alloc::vec;
+use alloc::vec::Vec;
 use zeroize::Zeroizing;
 
 /// Key switching key for the BFV encryption scheme.
@@ -410,16 +415,19 @@ mod tests {
         keys::key_switching_key::KeySwitchingKey, traits::TryConvertFrom, BfvParameters, SecretKey,
     };
     use crate::proto::bfv::KeySwitchingKey as KeySwitchingKeyProto;
+    use crate::Error;
+    extern crate alloc;
+    use alloc::vec;
+    use alloc::vec::Vec;
     use fhe_math::{
         rns::RnsContext,
         rq::{traits::TryConvertFrom as TryConvertFromPoly, Poly, Representation},
     };
     use num_bigint::BigUint;
     use rand::thread_rng;
-    use std::error::Error;
 
     #[test]
-    fn constructor() -> Result<(), Box<dyn Error>> {
+    fn constructor() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(6, 16),
@@ -435,7 +443,7 @@ mod tests {
     }
 
     #[test]
-    fn constructor_last_level() -> Result<(), Box<dyn Error>> {
+    fn constructor_last_level() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(6, 16),
@@ -452,7 +460,7 @@ mod tests {
     }
 
     #[test]
-    fn key_switch() -> Result<(), Box<dyn Error>> {
+    fn key_switch() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [BfvParameters::default_arc(6, 16)] {
             for _ in 0..100 {
@@ -482,7 +490,7 @@ mod tests {
 
                 let rns = RnsContext::new(&params.moduli)?;
                 Vec::<BigUint>::from(&(&c2 - &c3)).iter().for_each(|b| {
-                    assert!(std::cmp::min(b.bits(), (rns.modulus() - b).bits()) <= 70)
+                    assert!(core::cmp::min(b.bits(), (rns.modulus() - b).bits()) <= 70)
                 });
             }
         }
@@ -490,7 +498,7 @@ mod tests {
     }
 
     #[test]
-    fn key_switch_decomposition() -> Result<(), Box<dyn Error>> {
+    fn key_switch_decomposition() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [BfvParameters::default_arc(6, 16)] {
             for _ in 0..100 {
@@ -521,7 +529,7 @@ mod tests {
                 let rns = RnsContext::new(ctx.moduli())?;
                 Vec::<BigUint>::from(&(&c2 - &c3)).iter().for_each(|b| {
                     assert!(
-                        std::cmp::min(b.bits(), (rns.modulus() - b).bits())
+                        core::cmp::min(b.bits(), (rns.modulus() - b).bits())
                             <= (rns.modulus().bits() / 2) + 10
                     )
                 });
@@ -531,7 +539,7 @@ mod tests {
     }
 
     #[test]
-    fn proto_conversion() -> Result<(), Box<dyn Error>> {
+    fn proto_conversion() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(6, 16),

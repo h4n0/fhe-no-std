@@ -1,8 +1,14 @@
-use std::cmp::min;
+use core::cmp::min;
 
 use fhe_math::rq::{dot_product as poly_dot_product, traits::TryConvertFrom, Poly, Representation};
 use itertools::{izip, Itertools};
 use ndarray::{Array, Array2};
+extern crate alloc;
+use alloc::boxed::Box;
+use alloc::sync::Arc;
+use alloc::string::ToString;
+use alloc::vec;
+use alloc::vec::Vec;
 
 use crate::{
     bfv::{Ciphertext, Plaintext},
@@ -158,13 +164,13 @@ where
 mod tests {
     use super::dot_product_scalar;
     use crate::bfv::{BfvParameters, Ciphertext, Encoding, Plaintext, SecretKey};
+    use crate::Error;
     use fhe_traits::{FheEncoder, FheEncrypter};
     use itertools::{izip, Itertools};
     use rand::thread_rng;
-    use std::error::Error;
 
     #[test]
-    fn test_dot_product_scalar() -> Result<(), Box<dyn Error>> {
+    fn test_dot_product_scalar() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(1, 16),

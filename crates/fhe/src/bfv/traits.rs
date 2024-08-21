@@ -2,7 +2,9 @@
 
 use crate::bfv::BfvParameters;
 use crate::Result;
-use std::sync::Arc;
+extern crate alloc;
+use alloc::sync::Arc;
+use alloc::string::ToString;
 
 /// Conversions.
 ///

@@ -1,4 +1,10 @@
-use std::{cmp::min, ops::Deref, sync::Arc};
+use core::{cmp::min, ops::Deref};
+extern crate alloc;
+use alloc::boxed::Box;
+use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec;
+use alloc::vec::Vec;
 
 use fhe_math::rq::{traits::TryConvertFrom, Poly, Representation};
 use fhe_traits::{FheEncoder, FheEncoderVariableTime, FheParametrized, FhePlaintext};
@@ -134,12 +140,14 @@ impl FheEncoder<&[u64]> for PlaintextVec {
 #[cfg(test)]
 mod tests {
     use crate::bfv::{BfvParameters, Encoding, PlaintextVec};
+    use crate::Error;
     use fhe_traits::{FheDecoder, FheEncoder, FheEncoderVariableTime};
     use rand::thread_rng;
-    use std::error::Error;
+    extern crate alloc;
+    use alloc::vec::Vec;
 
     #[test]
-    fn encode_decode() -> Result<(), Box<dyn Error>> {
+    fn encode_decode() -> Result<(), Error> {
         let mut rng = thread_rng();
         for _ in 0..20 {
             for i in 1..5 {

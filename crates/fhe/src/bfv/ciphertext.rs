@@ -1,8 +1,14 @@
 //! Ciphertext type in the BFV encryption scheme.
 
+extern crate alloc;
+
 use crate::bfv::{parameters::BfvParameters, traits::TryConvertFrom};
 use crate::proto::bfv::Ciphertext as CiphertextProto;
 use crate::{Error, Result};
+use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec::Vec;
+use core::ops::{Deref, DerefMut};
 use fhe_math::rq::{Poly, Representation};
 use fhe_traits::{
     DeserializeParametrized, DeserializeWithContext, FheCiphertext, FheParametrized, Serialize,
@@ -10,8 +16,6 @@ use fhe_traits::{
 use prost::Message;
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
-use std::ops::{Deref, DerefMut};
-use std::sync::Arc;
 
 /// A ciphertext encrypting a plaintext.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -211,13 +215,15 @@ mod tests {
         traits::TryConvertFrom, BfvParameters, Ciphertext, Encoding, Plaintext, SecretKey,
     };
     use crate::proto::bfv::Ciphertext as CiphertextProto;
+    use crate::Error;
     use fhe_traits::FheDecrypter;
     use fhe_traits::{DeserializeParametrized, FheEncoder, FheEncrypter, Serialize};
     use rand::thread_rng;
-    use std::error::Error;
+    extern crate alloc;
+    use alloc::vec;
 
     #[test]
-    fn proto_conversion() -> Result<(), Box<dyn Error>> {
+    fn proto_conversion() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(1, 16),
@@ -238,7 +244,7 @@ mod tests {
     }
 
     #[test]
-    fn serialize() -> Result<(), Box<dyn Error>> {
+    fn serialize() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(1, 16),
@@ -255,7 +261,7 @@ mod tests {
     }
 
     #[test]
-    fn new() -> Result<(), Box<dyn Error>> {
+    fn new() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(1, 16),
@@ -293,7 +299,7 @@ mod tests {
     }
 
     #[test]
-    fn mod_switch_to_last_level() -> Result<(), Box<dyn Error>> {
+    fn mod_switch_to_last_level() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(1, 16),

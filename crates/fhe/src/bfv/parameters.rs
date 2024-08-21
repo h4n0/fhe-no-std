@@ -2,6 +2,7 @@
 
 use crate::proto::bfv::Parameters;
 use crate::{Error, ParametersError, Result};
+use alloc::fmt::Debug;
 use fhe_math::{
     ntt::NttOperator,
     rns::{RnsContext, ScalingFactor},
@@ -9,13 +10,18 @@ use fhe_math::{
     zq::{primes::generate_prime, Modulus},
 };
 use fhe_traits::{Deserialize, FheParameters, Serialize};
+use hashbrown::HashMap;
 use itertools::Itertools;
 use num_bigint::BigUint;
 use num_traits::ToPrimitive;
 use prost::Message;
-use std::collections::HashMap;
-use std::fmt::Debug;
-use std::sync::Arc;
+extern crate alloc;
+use alloc::borrow::ToOwned;
+use alloc::boxed::Box;
+use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec;
+use alloc::vec::Vec;
 
 /// Parameters for the BFV encryption scheme.
 #[derive(PartialEq, Eq)]
@@ -64,7 +70,7 @@ pub struct BfvParameters {
 }
 
 impl Debug for BfvParameters {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut alloc::fmt::Formatter<'_>) -> alloc::fmt::Result {
         f.debug_struct("BfvParameters")
             .field("polynomial_degree", &self.polynomial_degree)
             .field("plaintext_modulus", &self.plaintext_modulus)
@@ -483,12 +489,12 @@ impl MultiplicationParameters {
 #[cfg(test)]
 mod tests {
     use super::{BfvParameters, BfvParametersBuilder};
+    use crate::Error;
     use fhe_traits::{Deserialize, Serialize};
-    use std::error::Error;
 
     // TODO: To fix when errors handling is fixed.
     // #[test]
-    // fn builder()  -> Result<(), Box<dyn Error>> {
+    // fn builder()  -> Result<(), Error> {
     // 	let params = BfvParametersBuilder::new().build();
     // 	assert!(params.is_err_and(|e| e.to_string() == "Unspecified degree"));
 
@@ -585,7 +591,7 @@ mod tests {
     }
 
     #[test]
-    fn ciphertext_moduli() -> Result<(), Box<dyn Error>> {
+    fn ciphertext_moduli() -> Result<(), Error> {
         let params = BfvParametersBuilder::new()
             .set_degree(16)
             .set_plaintext_modulus(2)
@@ -621,7 +627,7 @@ mod tests {
     }
 
     #[test]
-    fn serialize() -> Result<(), Box<dyn Error>> {
+    fn serialize() -> Result<(), Error> {
         let params = BfvParametersBuilder::new()
             .set_degree(16)
             .set_plaintext_modulus(2)

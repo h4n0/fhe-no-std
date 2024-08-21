@@ -2,13 +2,13 @@
 
 use super::{traits::TryConvertFrom, Poly, Representation};
 use crate::{Error, Result};
-use itertools::{izip, Itertools};
-use ndarray::Array2;
-use num_bigint::BigUint;
-use std::{
+use core::{
     cmp::min,
     ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
+use itertools::{izip, Itertools};
+use ndarray::Array2;
+use num_bigint::BigUint;
 use zeroize::Zeroize;
 
 impl AddAssign<&Poly> for Poly {
@@ -457,6 +457,10 @@ where
 
 #[cfg(test)]
 mod tests {
+    extern crate alloc;
+    use crate::Error;
+    use alloc::string::ToString;
+    use alloc::sync::Arc;
     use itertools::{izip, Itertools};
     use rand::thread_rng;
 
@@ -465,12 +469,11 @@ mod tests {
         rq::{Context, Poly, Representation},
         zq::Modulus,
     };
-    use std::{error::Error, sync::Arc};
 
     static MODULI: &[u64; 3] = &[1153, 4611686018326724609, 4611686018309947393];
 
     #[test]
-    fn add() -> Result<(), Box<dyn Error>> {
+    fn add() -> Result<(), Error> {
         let mut rng = thread_rng();
         let n = 16;
         for _ in 0..100 {
@@ -512,7 +515,7 @@ mod tests {
     }
 
     #[test]
-    fn sub() -> Result<(), Box<dyn Error>> {
+    fn sub() -> Result<(), Error> {
         let mut rng = thread_rng();
         for _ in 0..100 {
             for modulus in MODULI {
@@ -553,7 +556,7 @@ mod tests {
     }
 
     #[test]
-    fn mul() -> Result<(), Box<dyn Error>> {
+    fn mul() -> Result<(), Error> {
         let mut rng = thread_rng();
         for _ in 0..100 {
             for modulus in MODULI {
@@ -586,7 +589,7 @@ mod tests {
     }
 
     #[test]
-    fn mul_shoup() -> Result<(), Box<dyn Error>> {
+    fn mul_shoup() -> Result<(), Error> {
         let mut rng = thread_rng();
         for _ in 0..100 {
             for modulus in MODULI {
@@ -619,7 +622,7 @@ mod tests {
     }
 
     #[test]
-    fn neg() -> Result<(), Box<dyn Error>> {
+    fn neg() -> Result<(), Error> {
         let mut rng = thread_rng();
         for _ in 0..100 {
             for modulus in MODULI {
@@ -660,7 +663,7 @@ mod tests {
     }
 
     #[test]
-    fn test_dot_product() -> Result<(), Box<dyn Error>> {
+    fn test_dot_product() -> Result<(), Error> {
         let mut rng = thread_rng();
         for _ in 0..20 {
             for modulus in MODULI {

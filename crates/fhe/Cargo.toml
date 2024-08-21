@@ -31,7 +31,8 @@ rand_chacha.workspace = true
 zeroize.workspace = true
 zeroize_derive.workspace = true
 ndarray.workspace = true
-thiserror.workspace = true
+thiserror-no-std.workspace = true
+hashbrown.workspace = true
 
 [build-dependencies]
 prost-build.workspace = true

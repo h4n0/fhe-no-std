@@ -5,7 +5,12 @@ use crate::{
 };
 use fhe_math::rq::{traits::TryConvertFrom, Context, Poly, Representation};
 use fhe_traits::{FheDecoder, FheEncoder, FheParametrized, FhePlaintext};
-use std::sync::Arc;
+extern crate alloc;
+use alloc::boxed::Box;
+use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec;
+use alloc::vec::Vec;
 use zeroize::{Zeroize as _, Zeroizing};
 use zeroize_derive::{Zeroize, ZeroizeOnDrop};
 
@@ -223,14 +228,18 @@ impl FheDecoder<Plaintext> for Vec<i64> {
 mod tests {
     use super::{Encoding, Plaintext};
     use crate::bfv::parameters::{BfvParameters, BfvParametersBuilder};
+    use crate::Error;
     use fhe_math::rq::{Poly, Representation};
     use fhe_traits::{FheDecoder, FheEncoder};
     use rand::thread_rng;
-    use std::error::Error;
     use zeroize::Zeroize;
+    extern crate alloc;
+    use alloc::boxed::Box;
+    use alloc::string::ToString;
+    use alloc::vec::Vec;
 
     #[test]
-    fn try_encode() -> Result<(), Box<dyn Error>> {
+    fn try_encode() -> Result<(), Error> {
         let mut rng = thread_rng();
         // The default test parameters support both Poly and Simd encodings
         let params = BfvParameters::default_arc(1, 16);
@@ -267,7 +276,7 @@ mod tests {
     }
 
     #[test]
-    fn encode_decode() -> Result<(), Box<dyn Error>> {
+    fn encode_decode() -> Result<(), Error> {
         let mut rng = thread_rng();
         let params = BfvParameters::default_arc(1, 16);
         let a = params.plaintext.random_vec(params.degree(), &mut rng);
@@ -292,7 +301,7 @@ mod tests {
     }
 
     #[test]
-    fn partial_eq() -> Result<(), Box<dyn Error>> {
+    fn partial_eq() -> Result<(), Error> {
         let mut rng = thread_rng();
         let params = BfvParameters::default_arc(1, 16);
         let a = params.plaintext.random_vec(params.degree(), &mut rng);
@@ -312,7 +321,7 @@ mod tests {
     }
 
     #[test]
-    fn try_decode_errors() -> Result<(), Box<dyn Error>> {
+    fn try_decode_errors() -> Result<(), Error> {
         let mut rng = thread_rng();
         let params = BfvParameters::default_arc(1, 16);
         let a = params.plaintext.random_vec(params.degree(), &mut rng);
@@ -348,7 +357,7 @@ mod tests {
     }
 
     #[test]
-    fn zero() -> Result<(), Box<dyn Error>> {
+    fn zero() -> Result<(), Error> {
         let params = BfvParameters::default_arc(1, 16);
         let plaintext = Plaintext::zero(Encoding::poly(), &params)?;
 
@@ -362,7 +371,7 @@ mod tests {
     }
 
     #[test]
-    fn zeroize() -> Result<(), Box<dyn Error>> {
+    fn zeroize() -> Result<(), Error> {
         let mut rng = thread_rng();
         let params = BfvParameters::default_arc(1, 16);
         let a = params.plaintext.random_vec(params.degree(), &mut rng);
@@ -376,7 +385,7 @@ mod tests {
     }
 
     #[test]
-    fn try_encode_level() -> Result<(), Box<dyn Error>> {
+    fn try_encode_level() -> Result<(), Error> {
         let mut rng = thread_rng();
         // The default test parameters support both Poly and Simd encodings
         let params = BfvParameters::default_arc(10, 16);

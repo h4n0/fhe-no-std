@@ -8,9 +8,12 @@ pub use mul::Multiplicator;
 
 use super::{Ciphertext, Plaintext};
 use crate::{Error, Result};
+use core::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 use fhe_math::rq::{Poly, Representation};
 use itertools::{izip, Itertools as _};
-use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+extern crate alloc;
+use alloc::vec;
+use alloc::vec::Vec;
 
 impl Add<&Ciphertext> for &Ciphertext {
     type Output = Ciphertext;
@@ -278,12 +281,15 @@ mod tests {
     use crate::bfv::{
         encoding::EncodingEnum, BfvParameters, Ciphertext, Encoding, Plaintext, SecretKey,
     };
+    use crate::Error;
     use fhe_traits::{FheDecoder, FheDecrypter, FheEncoder, FheEncrypter};
     use rand::{rngs::OsRng, thread_rng};
-    use std::error::Error;
+    extern crate alloc;
+    use alloc::vec;
+    use alloc::vec::Vec;
 
     #[test]
-    fn add() -> Result<(), Box<dyn Error>> {
+    fn add() -> Result<(), Error> {
         let mut rng = thread_rng();
 
         for params in [
@@ -322,7 +328,7 @@ mod tests {
     }
 
     #[test]
-    fn add_scalar() -> Result<(), Box<dyn Error>> {
+    fn add_scalar() -> Result<(), Error> {
         let mut rng = thread_rng();
 
         for params in [
@@ -372,7 +378,7 @@ mod tests {
     }
 
     #[test]
-    fn sub() -> Result<(), Box<dyn Error>> {
+    fn sub() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(1, 16),
@@ -418,7 +424,7 @@ mod tests {
     }
 
     #[test]
-    fn sub_scalar() -> Result<(), Box<dyn Error>> {
+    fn sub_scalar() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(1, 16),
@@ -469,7 +475,7 @@ mod tests {
     }
 
     #[test]
-    fn neg() -> Result<(), Box<dyn Error>> {
+    fn neg() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(1, 16),
@@ -501,7 +507,7 @@ mod tests {
     }
 
     #[test]
-    fn mul_scalar() -> Result<(), Box<dyn Error>> {
+    fn mul_scalar() -> Result<(), Error> {
         let mut rng = thread_rng();
 
         for params in [
@@ -557,7 +563,7 @@ mod tests {
     }
 
     #[test]
-    fn mul() -> Result<(), Box<dyn Error>> {
+    fn mul() -> Result<(), Error> {
         let mut rng = thread_rng();
         for par in [
             BfvParameters::default_arc(2, 16),
@@ -580,13 +586,13 @@ mod tests {
                 let ct3 = &ct1 * &ct2;
                 let ct4 = &ct3 * &ct3;
 
-                println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
+                //println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
                 let pt = sk.try_decrypt(&ct3)?;
                 assert_eq!(Vec::<u64>::try_decode(&pt, Encoding::simd())?, expected);
 
                 let e = expected.clone();
                 par.plaintext.mul_vec(&mut expected, &e);
-                println!("Noise: {}", unsafe { sk.measure_noise(&ct4)? });
+                //println!("Noise: {}", unsafe { sk.measure_noise(&ct4)? });
                 let pt = sk.try_decrypt(&ct4)?;
                 assert_eq!(Vec::<u64>::try_decode(&pt, Encoding::simd())?, expected);
             }
@@ -595,7 +601,7 @@ mod tests {
     }
 
     #[test]
-    fn square() -> Result<(), Box<dyn Error>> {
+    fn square() -> Result<(), Error> {
         let mut rng = thread_rng();
         let par = BfvParameters::default_arc(6, 16);
         for _ in 0..20 {
@@ -611,7 +617,7 @@ mod tests {
             let ct1: Ciphertext = sk.try_encrypt(&pt, &mut rng)?;
             let ct2 = &ct1 * &ct1;
 
-            println!("Noise: {}", unsafe { sk.measure_noise(&ct2)? });
+            //println!("Noise: {}", unsafe { sk.measure_noise(&ct2)? });
             let pt = sk.try_decrypt(&ct2)?;
             assert_eq!(Vec::<u64>::try_decode(&pt, Encoding::simd())?, expected);
         }

@@ -21,7 +21,9 @@ pub use ops::dot_product;
 use rand::{CryptoRng, RngCore, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use sha2::{Digest, Sha256};
-use std::sync::Arc;
+extern crate alloc;
+use alloc::sync::Arc;
+use alloc::string::ToString;
 use zeroize::{Zeroize, Zeroizing};
 
 /// Possible representations of the underlying polynomial.
@@ -588,7 +590,10 @@ mod tests {
     use num_traits::{One, Zero};
     use rand::{thread_rng, Rng, SeedableRng};
     use rand_chacha::ChaCha8Rng;
-    use std::{error::Error, sync::Arc};
+    extern crate alloc;
+    use crate::Error;
+    use alloc::sync::Arc;
+use alloc::string::ToString;
 
     // Moduli to be used in tests.
     const MODULI: &[u64; 5] = &[
@@ -600,7 +605,7 @@ mod tests {
     ];
 
     #[test]
-    fn poly_zero() -> Result<(), Box<dyn Error>> {
+    fn poly_zero() -> Result<(), Error> {
         let reference = &[
             BigUint::zero(),
             BigUint::zero(),
@@ -642,7 +647,7 @@ mod tests {
     }
 
     #[test]
-    fn ctx() -> Result<(), Box<dyn Error>> {
+    fn ctx() -> Result<(), Error> {
         for modulus in MODULI {
             let ctx = Arc::new(Context::new(&[*modulus], 16)?);
             let p = Poly::zero(&ctx, Representation::PowerBasis);
@@ -657,7 +662,7 @@ mod tests {
     }
 
     #[test]
-    fn random() -> Result<(), Box<dyn Error>> {
+    fn random() -> Result<(), Error> {
         let mut rng = thread_rng();
         for _ in 0..100 {
             let mut seed = <ChaCha8Rng as SeedableRng>::Seed::default();
@@ -687,7 +692,7 @@ mod tests {
     }
 
     #[test]
-    fn coefficients() -> Result<(), Box<dyn Error>> {
+    fn coefficients() -> Result<(), Error> {
         let mut rng = thread_rng();
         for _ in 0..50 {
             for modulus in MODULI {
@@ -706,7 +711,7 @@ mod tests {
     }
 
     #[test]
-    fn modulus() -> Result<(), Box<dyn Error>> {
+    fn modulus() -> Result<(), Error> {
         for modulus in MODULI {
             let modulus_biguint = BigUint::from(*modulus);
             let ctx = Arc::new(Context::new(&[*modulus], 16)?);
@@ -722,7 +727,7 @@ mod tests {
     }
 
     #[test]
-    fn allow_variable_time_computations() -> Result<(), Box<dyn Error>> {
+    fn allow_variable_time_computations() -> Result<(), Error> {
         let mut rng = thread_rng();
         for modulus in MODULI {
             let ctx = Arc::new(Context::new(&[*modulus], 16)?);
@@ -773,7 +778,7 @@ mod tests {
     }
 
     #[test]
-    fn change_representation() -> Result<(), Box<dyn Error>> {
+    fn change_representation() -> Result<(), Error> {
         let mut rng = thread_rng();
         let ctx = Arc::new(Context::new(MODULI, 16)?);
 
@@ -817,7 +822,7 @@ mod tests {
     }
 
     #[test]
-    fn override_representation() -> Result<(), Box<dyn Error>> {
+    fn override_representation() -> Result<(), Error> {
         let mut rng = thread_rng();
         let ctx = Arc::new(Context::new(MODULI, 16)?);
 
@@ -850,7 +855,7 @@ mod tests {
     }
 
     #[test]
-    fn small() -> Result<(), Box<dyn Error>> {
+    fn small() -> Result<(), Error> {
         let mut rng = thread_rng();
         for modulus in MODULI {
             let ctx = Arc::new(Context::new(&[*modulus], 16)?);
@@ -891,7 +896,7 @@ mod tests {
     }
 
     #[test]
-    fn substitute() -> Result<(), Box<dyn Error>> {
+    fn substitute() -> Result<(), Error> {
         let mut rng = thread_rng();
         for modulus in MODULI {
             let ctx = Arc::new(Context::new(&[*modulus], 16)?);
@@ -987,7 +992,7 @@ mod tests {
     }
 
     #[test]
-    fn mod_switch_down_next() -> Result<(), Box<dyn Error>> {
+    fn mod_switch_down_next() -> Result<(), Error> {
         let mut rng = thread_rng();
         let ntests = 100;
         let ctx = Arc::new(Context::new(MODULI, 16)?);
@@ -1033,7 +1038,7 @@ mod tests {
     }
 
     #[test]
-    fn mod_switch_down_to() -> Result<(), Box<dyn Error>> {
+    fn mod_switch_down_to() -> Result<(), Error> {
         let mut rng = thread_rng();
         let ntests = 100;
         let ctx1 = Arc::new(Context::new(MODULI, 16)?);
@@ -1059,7 +1064,7 @@ mod tests {
     }
 
     #[test]
-    fn mod_switch_to() -> Result<(), Box<dyn Error>> {
+    fn mod_switch_to() -> Result<(), Error> {
         let mut rng = thread_rng();
         let ntests = 100;
         let ctx1 = Arc::new(Context::new(&MODULI[..2], 16)?);
@@ -1084,7 +1089,7 @@ mod tests {
     }
 
     #[test]
-    fn mul_x_power() -> Result<(), Box<dyn Error>> {
+    fn mul_x_power() -> Result<(), Error> {
         let mut rng = thread_rng();
         let ctx = Arc::new(Context::new(MODULI, 16)?);
         let e = Poly::random(&ctx, Representation::Ntt, &mut rng).multiply_inverse_power_of_x(1);

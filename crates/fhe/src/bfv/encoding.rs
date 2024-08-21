@@ -1,6 +1,8 @@
 //! The encoding type for BFV.
 
-use std::fmt::Display;
+use alloc::fmt::Display;
+extern crate alloc;
+use alloc::string::String;
 
 use fhe_traits::FhePlaintextEncoding;
 
@@ -11,7 +13,7 @@ pub(crate) enum EncodingEnum {
 }
 
 impl Display for EncodingEnum {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut alloc::fmt::Formatter<'_>) -> alloc::fmt::Result {
         write!(f, "{self:?}")
     }
 }
@@ -69,7 +71,7 @@ impl From<Encoding> for String {
 
 impl From<&Encoding> for String {
     fn from(e: &Encoding) -> Self {
-        format!("{e:?}")
+        alloc::format!("{e:?}")
     }
 }
 

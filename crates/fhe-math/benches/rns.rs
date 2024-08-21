@@ -2,7 +2,9 @@ use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use fhe_math::rns::{RnsContext, RnsScaler, ScalingFactor};
 use num_bigint::BigUint;
 use rand::{thread_rng, RngCore};
-use std::sync::Arc;
+extern crate alloc;
+use alloc::sync::Arc;
+use alloc::string::ToString;
 
 pub fn rns_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("rns");

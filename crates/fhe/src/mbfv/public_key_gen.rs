@@ -1,4 +1,8 @@
-use std::sync::Arc;
+extern crate alloc;
+use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec;
+use alloc::vec::Vec;
 
 use crate::bfv::{BfvParameters, Ciphertext, PublicKey, SecretKey};
 use crate::errors::Result;
@@ -84,6 +88,9 @@ impl Aggregate<PublicKeyShare> for PublicKey {
 mod tests {
     use fhe_traits::{FheEncoder, FheEncrypter};
     use rand::thread_rng;
+    extern crate alloc;
+    use alloc::vec;
+    use alloc::vec::Vec;
 
     use crate::{
         bfv::{BfvParameters, Encoding, Plaintext, PublicKey, SecretKey},

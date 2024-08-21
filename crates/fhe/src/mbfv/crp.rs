@@ -1,4 +1,7 @@
-use std::sync::Arc;
+extern crate alloc;
+use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec::Vec;
 
 use crate::bfv::BfvParameters;
 use crate::Result;

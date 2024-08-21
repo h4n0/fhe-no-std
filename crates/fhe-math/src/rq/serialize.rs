@@ -1,6 +1,8 @@
 //! Implementation of serialization and deserialization.
 
-use std::sync::Arc;
+extern crate alloc;
+use alloc::string::ToString;
+use alloc::sync::Arc;
 
 use super::{traits::TryConvertFrom, Context, Poly};
 use crate::{proto::rq::Rq, Error};
@@ -25,7 +27,11 @@ impl DeserializeWithContext for Poly {
 
 #[cfg(test)]
 mod tests {
-    use std::{error::Error, sync::Arc};
+    use crate::Error;
+
+    extern crate alloc;
+    use alloc::string::ToString;
+    use alloc::sync::Arc;
 
     use fhe_traits::{DeserializeWithContext, Serialize};
     use rand::thread_rng;
@@ -39,7 +45,7 @@ mod tests {
     ];
 
     #[test]
-    fn serialize() -> Result<(), Box<dyn Error>> {
+    fn serialize() -> Result<(), Error> {
         let mut rng = thread_rng();
 
         for qi in Q {

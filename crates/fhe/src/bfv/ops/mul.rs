@@ -1,4 +1,9 @@
-use std::sync::Arc;
+extern crate alloc;
+use alloc::boxed::Box;
+use alloc::sync::Arc;
+use alloc::string::ToString;
+use alloc::vec;
+use alloc::vec::Vec;
 
 use fhe_math::{
     rns::ScalingFactor,
@@ -240,6 +245,7 @@ mod tests {
     use crate::bfv::{
         BfvParameters, Ciphertext, Encoding, Plaintext, RelinearizationKey, SecretKey,
     };
+    use crate::Error;
     use fhe_math::{
         rns::{RnsContext, ScalingFactor},
         zq::primes::generate_prime,
@@ -247,12 +253,13 @@ mod tests {
     use fhe_traits::{FheDecoder, FheDecrypter, FheEncoder, FheEncrypter};
     use num_bigint::BigUint;
     use rand::{rngs::OsRng, thread_rng};
-    use std::error::Error;
+    extern crate alloc;
+    use alloc::vec::Vec;
 
     use super::Multiplicator;
 
     #[test]
-    fn mul() -> Result<(), Box<dyn Error>> {
+    fn mul() -> Result<(), Error> {
         let mut rng = thread_rng();
         let par = BfvParameters::default_arc(3, 16);
         for _ in 0..30 {
@@ -270,14 +277,14 @@ mod tests {
 
             let mut multiplicator = Multiplicator::default(&rk)?;
             let ct3 = multiplicator.multiply(&ct1, &ct2)?;
-            println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
+            //println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
             let pt = sk.try_decrypt(&ct3)?;
             assert_eq!(Vec::<u64>::try_decode(&pt, Encoding::simd())?, expected);
 
             multiplicator.enable_mod_switching()?;
             let ct3 = multiplicator.multiply(&ct1, &ct2)?;
             assert_eq!(ct3.level, 1);
-            println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
+            //println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
             let pt = sk.try_decrypt(&ct3)?;
             assert_eq!(Vec::<u64>::try_decode(&pt, Encoding::simd())?, expected);
         }
@@ -285,7 +292,7 @@ mod tests {
     }
 
     #[test]
-    fn mul_at_level() -> Result<(), Box<dyn Error>> {
+    fn mul_at_level() -> Result<(), Error> {
         let mut rng = thread_rng();
         let par = BfvParameters::default_arc(3, 16);
         for _ in 0..15 {
@@ -304,14 +311,14 @@ mod tests {
 
                 let mut multiplicator = Multiplicator::default(&rk).unwrap();
                 let ct3 = multiplicator.multiply(&ct1, &ct2).unwrap();
-                println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
+                //println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
                 let pt = sk.try_decrypt(&ct3)?;
                 assert_eq!(Vec::<u64>::try_decode(&pt, Encoding::simd())?, expected);
 
                 multiplicator.enable_mod_switching()?;
                 let ct3 = multiplicator.multiply(&ct1, &ct2)?;
                 assert_eq!(ct3.level, level + 1);
-                println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
+                //println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
                 let pt = sk.try_decrypt(&ct3)?;
                 assert_eq!(Vec::<u64>::try_decode(&pt, Encoding::simd())?, expected);
             }
@@ -320,7 +327,7 @@ mod tests {
     }
 
     #[test]
-    fn mul_no_relin() -> Result<(), Box<dyn Error>> {
+    fn mul_no_relin() -> Result<(), Error> {
         let mut rng = thread_rng();
         let par = BfvParameters::default_arc(6, 16);
         for _ in 0..30 {
@@ -340,14 +347,14 @@ mod tests {
             // Remove the relinearization key.
             multiplicator.rk = None;
             let ct3 = multiplicator.multiply(&ct1, &ct2)?;
-            println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
+            //println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
             let pt = sk.try_decrypt(&ct3)?;
             assert_eq!(Vec::<u64>::try_decode(&pt, Encoding::simd())?, expected);
 
             multiplicator.enable_mod_switching()?;
             let ct3 = multiplicator.multiply(&ct1, &ct2)?;
             assert_eq!(ct3.level, 1);
-            println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
+            //println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
             let pt = sk.try_decrypt(&ct3)?;
             assert_eq!(Vec::<u64>::try_decode(&pt, Encoding::simd())?, expected);
         }
@@ -355,7 +362,7 @@ mod tests {
     }
 
     #[test]
-    fn different_mul_strategy() -> Result<(), Box<dyn Error>> {
+    fn different_mul_strategy() -> Result<(), Error> {
         // Implement the second multiplication strategy from <https://eprint.iacr.org/2021/204>
 
         let mut rng = thread_rng();
@@ -390,14 +397,14 @@ mod tests {
             )?;
 
             let ct3 = multiplicator.multiply(&ct1, &ct2)?;
-            println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
+            //println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
             let pt = sk.try_decrypt(&ct3)?;
             assert_eq!(Vec::<u64>::try_decode(&pt, Encoding::simd())?, expected);
 
             multiplicator.enable_mod_switching()?;
             let ct3 = multiplicator.multiply(&ct1, &ct2)?;
             assert_eq!(ct3.level, 1);
-            println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
+            //println!("Noise: {}", unsafe { sk.measure_noise(&ct3)? });
             let pt = sk.try_decrypt(&ct3)?;
             assert_eq!(Vec::<u64>::try_decode(&pt, Encoding::simd())?, expected);
         }

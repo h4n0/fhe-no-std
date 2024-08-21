@@ -1,4 +1,7 @@
-use std::ops::Mul;
+use core::ops::Mul;
+extern crate alloc;
+use alloc::vec;
+use alloc::vec::Vec;
 
 use crate::proto::bfv::{
     KeySwitchingKey as KeySwitchingKeyProto, RgswCiphertext as RGSWCiphertextProto,
@@ -39,7 +42,7 @@ impl From<&RGSWCiphertext> for RGSWCiphertextProto {
 impl TryConvertFrom<&RGSWCiphertextProto> for RGSWCiphertext {
     fn try_convert_from(
         value: &RGSWCiphertextProto,
-        par: &std::sync::Arc<BfvParameters>,
+        par: &alloc::sync::Arc<BfvParameters>,
     ) -> Result<Self> {
         let ksk0 = KeySwitchingKey::try_convert_from(
             value.ksk0.as_ref().ok_or(Error::SerializationError)?,
@@ -63,7 +66,7 @@ impl TryConvertFrom<&RGSWCiphertextProto> for RGSWCiphertext {
 impl DeserializeParametrized for RGSWCiphertext {
     type Error = Error;
 
-    fn from_bytes(bytes: &[u8], par: &std::sync::Arc<Self::Parameters>) -> Result<Self> {
+    fn from_bytes(bytes: &[u8], par: &alloc::sync::Arc<Self::Parameters>) -> Result<Self> {
         let proto = Message::decode(bytes).map_err(|_| Error::SerializationError)?;
         RGSWCiphertext::try_convert_from(&proto, par)
     }
@@ -148,7 +151,7 @@ impl Mul<&Ciphertext> for &RGSWCiphertext {
 
 #[cfg(test)]
 mod tests {
-    use std::error::Error;
+    use crate::Error;
 
     use crate::bfv::{BfvParameters, Ciphertext, Encoding, Plaintext, SecretKey};
     use fhe_traits::{DeserializeParametrized, FheDecrypter, FheEncoder, FheEncrypter, Serialize};
@@ -157,7 +160,7 @@ mod tests {
     use super::RGSWCiphertext;
 
     #[test]
-    fn external_product() -> Result<(), Box<dyn Error>> {
+    fn external_product() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(2, 16),
@@ -180,8 +183,8 @@ mod tests {
             let ct3 = &ct1 * &ct2_rgsw;
             let ct4 = &ct2_rgsw * &ct1;
 
-            println!("Noise 1: {:?}", unsafe { sk.measure_noise(&ct3) });
-            println!("Noise 2: {:?}", unsafe { sk.measure_noise(&ct4) });
+            //println!("Noise 1: {:?}", unsafe { sk.measure_noise(&ct3) });
+            //println!("Noise 2: {:?}", unsafe { sk.measure_noise(&ct4) });
             assert_eq!(expected, sk.try_decrypt(&ct3)?);
             assert_eq!(expected, sk.try_decrypt(&ct4)?);
         }
@@ -189,7 +192,7 @@ mod tests {
     }
 
     #[test]
-    fn serialize() -> Result<(), Box<dyn Error>> {
+    fn serialize() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(6, 16),

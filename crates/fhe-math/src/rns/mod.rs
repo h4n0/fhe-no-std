@@ -12,6 +12,8 @@ use std::{cmp::Ordering, fmt::Debug};
 
 mod scaler;
 
+extern crate alloc;
+
 pub use scaler::{RnsScaler, ScalingFactor};
 
 /// Context for a Residue Number System.
@@ -27,7 +29,7 @@ pub struct RnsContext {
 }
 
 impl Debug for RnsContext {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut alloc::fmt::Formatter<'_>) -> alloc::fmt::Result {
         f.debug_struct("RnsContext")
             .field("moduli_u64", &self.moduli_u64)
             // .field("moduli", &self.moduli)
@@ -141,7 +143,7 @@ impl RnsContext {
 #[cfg(test)]
 mod tests {
 
-    use std::error::Error;
+    use crate::Error;
 
     use super::RnsContext;
     use ndarray::ArrayView1;
@@ -166,7 +168,7 @@ mod tests {
     }
 
     #[test]
-    fn garner() -> Result<(), Box<dyn Error>> {
+    fn garner() -> Result<(), Error> {
         let rns = RnsContext::new(&[4, 15, 1153])?;
 
         for i in 0..3 {
@@ -180,7 +182,7 @@ mod tests {
     }
 
     #[test]
-    fn modulus() -> Result<(), Box<dyn Error>> {
+    fn modulus() -> Result<(), Error> {
         let mut rns = RnsContext::new(&[2])?;
         debug_assert_eq!(rns.modulus(), &BigUint::from(2u64));
 
@@ -194,7 +196,7 @@ mod tests {
     }
 
     #[test]
-    fn project_lift() -> Result<(), Box<dyn Error>> {
+    fn project_lift() -> Result<(), Error> {
         let ntests = 100;
         let rns = RnsContext::new(&[4, 15, 1153])?;
         let product = 4u64 * 15 * 1153;

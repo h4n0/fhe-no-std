@@ -1,6 +1,10 @@
 //! Relinearization keys for the BFV encryption scheme
 
-use std::sync::Arc;
+extern crate alloc;
+use alloc::sync::Arc;
+use alloc::string::ToString;
+use alloc::vec;
+use alloc::vec::Vec;
 
 use super::key_switching_key::KeySwitchingKey;
 use crate::bfv::{traits::TryConvertFrom, BfvParameters, Ciphertext, SecretKey};
@@ -157,13 +161,18 @@ mod tests {
     use super::RelinearizationKey;
     use crate::bfv::{traits::TryConvertFrom, BfvParameters, Ciphertext, Encoding, SecretKey};
     use crate::proto::bfv::RelinearizationKey as RelinearizationKeyProto;
+    use crate::Error;
     use fhe_math::rq::{traits::TryConvertFrom as TryConvertFromPoly, Poly, Representation};
     use fhe_traits::{FheDecoder, FheDecrypter};
     use rand::thread_rng;
-    use std::error::Error;
+    extern crate alloc;
+    use alloc::sync::Arc;
+use alloc::string::ToString;
+    use alloc::vec;
+    use alloc::vec::Vec;
 
     #[test]
-    fn relinearization() -> Result<(), Box<dyn Error>> {
+    fn relinearization() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [BfvParameters::default_arc(6, 16)] {
             for _ in 0..100 {
@@ -207,7 +216,7 @@ mod tests {
                 assert_eq!(ct, Ciphertext::new(vec![&c0 + &c0r, &c1 + &c1r], &params)?);
 
                 // Print the noise and decrypt
-                println!("Noise: {}", unsafe { sk.measure_noise(&ct)? });
+                //println!("Noise: {}", unsafe { sk.measure_noise(&ct)? });
                 let pt = sk.try_decrypt(&ct)?;
                 let w = Vec::<u64>::try_decode(&pt, Encoding::poly())?;
                 assert_eq!(w, &[0u64; 16]);
@@ -217,7 +226,7 @@ mod tests {
     }
 
     #[test]
-    fn relinearization_leveled() -> Result<(), Box<dyn Error>> {
+    fn relinearization_leveled() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [BfvParameters::default_arc(5, 16)] {
             for ciphertext_level in 0..params.max_level() {
@@ -268,7 +277,7 @@ mod tests {
                         assert_eq!(ct, Ciphertext::new(vec![&c0 + &c0r, &c1 + &c1r], &params)?);
 
                         // Print the noise and decrypt
-                        println!("Noise: {}", unsafe { sk.measure_noise(&ct)? });
+                        //println!("Noise: {}", unsafe { sk.measure_noise(&ct)? });
                         let pt = sk.try_decrypt(&ct)?;
                         let w = Vec::<u64>::try_decode(&pt, Encoding::poly())?;
                         assert_eq!(w, &[0u64; 16]);
@@ -280,7 +289,7 @@ mod tests {
     }
 
     #[test]
-    fn proto_conversion() -> Result<(), Box<dyn Error>> {
+    fn proto_conversion() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(6, 16),

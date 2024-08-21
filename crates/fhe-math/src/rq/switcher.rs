@@ -4,7 +4,9 @@
 
 use super::{scaler::Scaler, Context, Poly};
 use crate::{rns::ScalingFactor, Result};
-use std::sync::Arc;
+extern crate alloc;
+use alloc::sync::Arc;
+use alloc::string::ToString;
 
 /// Context switcher.
 #[derive(Default, Debug, Clone, PartialEq, Eq)]

@@ -12,7 +12,13 @@ use itertools::Itertools;
 use num_bigint::BigUint;
 use rand::{thread_rng, CryptoRng, Rng, RngCore, SeedableRng};
 use rand_chacha::ChaCha8Rng;
-use std::sync::Arc;
+extern crate alloc;
+use alloc::borrow::ToOwned;
+use alloc::boxed::Box;
+use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec;
+use alloc::vec::Vec;
 use zeroize::Zeroizing;
 use zeroize_derive::{Zeroize, ZeroizeOnDrop};
 
@@ -76,9 +82,9 @@ impl SecretKey {
         let ciphertext_modulus = ct[0].ctx().modulus();
         let mut noise = 0usize;
         for coeff in Vec::<BigUint>::from(c.as_ref()) {
-            noise = std::cmp::max(
+            noise = core::cmp::max(
                 noise,
-                std::cmp::min(coeff.bits(), (ciphertext_modulus - &coeff).bits()) as usize,
+                core::cmp::min(coeff.bits(), (ciphertext_modulus - &coeff).bits()) as usize,
             )
         }
 
@@ -217,9 +223,9 @@ impl FheDecrypter<Plaintext, Ciphertext> for SecretKey {
 mod tests {
     use super::SecretKey;
     use crate::bfv::{parameters::BfvParameters, Encoding, Plaintext};
+    use crate::Error;
     use fhe_traits::{FheDecrypter, FheEncoder, FheEncrypter};
     use rand::thread_rng;
-    use std::error::Error;
 
     #[test]
     fn keygen() {
@@ -235,7 +241,7 @@ mod tests {
     }
 
     #[test]
-    fn encrypt_decrypt() -> Result<(), Box<dyn Error>> {
+    fn encrypt_decrypt() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(1, 16),
@@ -253,7 +259,7 @@ mod tests {
                     let ct = sk.try_encrypt(&pt, &mut rng)?;
                     let pt2 = sk.try_decrypt(&ct)?;
 
-                    println!("Noise: {}", unsafe { sk.measure_noise(&ct)? });
+                    //println!("Noise: {}", unsafe { sk.measure_noise(&ct)? });
                     assert_eq!(pt2, pt);
                 }
             }

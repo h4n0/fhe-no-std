@@ -18,9 +18,9 @@ One ciphertext encrypts the value `20` using the secret key, and one ciphertext 
 use fhe::bfv::{BfvParametersBuilder, Ciphertext, Encoding, Plaintext, PublicKey, SecretKey};
 use fhe_traits::*;
 use rand::{rngs::OsRng, thread_rng};
-use std::error::Error;
+use core::error::Error;
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), Error> {
     let parameters = BfvParametersBuilder::new()
             .set_degree(2048)
             .set_moduli(&[0x3fffffff000001])

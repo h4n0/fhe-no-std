@@ -8,7 +8,9 @@ use crate::{
 use itertools::{izip, Itertools};
 use ndarray::{Array2, ArrayView, Axis};
 use num_bigint::BigUint;
-use std::sync::Arc;
+extern crate alloc;
+use alloc::sync::Arc;
+use alloc::string::ToString;
 use zeroize::{Zeroize, Zeroizing};
 
 impl From<&Poly> for Rq {
@@ -431,12 +433,15 @@ mod tests {
     };
     use num_bigint::BigUint;
     use rand::thread_rng;
-    use std::{error::Error, sync::Arc};
+    extern crate alloc;
+    use crate::Error;
+    use alloc::sync::Arc;
+use alloc::string::ToString;
 
     static MODULI: &[u64; 3] = &[1153, 4611686018326724609, 4611686018309947393];
 
     #[test]
-    fn proto() -> Result<(), Box<dyn Error>> {
+    fn proto() -> Result<(), Error> {
         let mut rng = thread_rng();
         for modulus in MODULI {
             let ctx = Arc::new(Context::new(&[*modulus], 16)?);
@@ -489,7 +494,7 @@ mod tests {
     }
 
     #[test]
-    fn try_convert_from_slice_zero() -> Result<(), Box<dyn Error>> {
+    fn try_convert_from_slice_zero() -> Result<(), Error> {
         for modulus in MODULI {
             let ctx = Arc::new(Context::new(&[*modulus], 16)?);
 
@@ -580,7 +585,7 @@ mod tests {
     }
 
     #[test]
-    fn try_convert_from_vec_zero() -> Result<(), Box<dyn Error>> {
+    fn try_convert_from_vec_zero() -> Result<(), Error> {
         for modulus in MODULI {
             let ctx = Arc::new(Context::new(&[*modulus], 16)?);
             assert_eq!(
@@ -648,7 +653,7 @@ mod tests {
     }
 
     #[test]
-    fn biguint() -> Result<(), Box<dyn Error>> {
+    fn biguint() -> Result<(), Error> {
         let mut rng = thread_rng();
         for _ in 0..100 {
             for modulus in MODULI {

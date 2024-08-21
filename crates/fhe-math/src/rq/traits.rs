@@ -4,7 +4,9 @@
 
 use super::{Context, Representation};
 use crate::Result;
-use std::sync::Arc;
+extern crate alloc;
+use alloc::string::ToString;
+use alloc::sync::Arc;
 
 /// Conversions to create polynomials.
 ///

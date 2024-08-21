@@ -1,4 +1,6 @@
 use crate::errors::Result;
+extern crate alloc;
+use alloc::vec::Vec;
 
 /// Aggregate shares in an MPC protocol
 pub trait Aggregate<S>: Sized {

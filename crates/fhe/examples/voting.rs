@@ -2,12 +2,13 @@
 
 mod util;
 
-use std::{env, error::Error, process::exit, sync::Arc};
+use std::{env, process::exit, sync::Arc};
 
 use console::style;
 use fhe::{
     bfv::{self, Ciphertext, Encoding, Plaintext, PublicKey, SecretKey},
     mbfv::{AggregateIter, CommonRandomPoly, DecryptionShare, PublicKeyShare},
+    Error,
 };
 use fhe_traits::{FheDecoder, FheEncoder, FheEncrypter};
 use rand::{distributions::Uniform, prelude::Distribution, rngs::OsRng, thread_rng};
@@ -34,7 +35,7 @@ fn print_notice_and_exit(error: Option<String>) {
     exit(0);
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), Error> {
     let degree = 4096;
     let plaintext_modulus: u64 = 4096;
     let moduli = vec![0xffffee001, 0xffffc4001, 0x1ffffe0001];
@@ -59,14 +60,18 @@ fn main() -> Result<(), Box<dyn Error>> {
             if a.len() != 2 || a[0].parse::<usize>().is_err() {
                 print_notice_and_exit(Some("Invalid `--num_voters` argument".to_string()))
             } else {
-                num_voters = a[0].parse::<usize>()?
+                num_voters = a[0]
+                    .parse::<usize>()
+                    .map_err(|_| Error::DefaultError("Parsing error".to_string()))?
             }
         } else if arg.starts_with("--num_parties") {
             let a: Vec<&str> = arg.rsplit('=').collect();
             if a.len() != 2 || a[0].parse::<usize>().is_err() {
                 print_notice_and_exit(Some("Invalid `--num_parties` argument".to_string()))
             } else {
-                num_parties = a[0].parse::<usize>()?
+                num_parties = a[0]
+                    .parse::<usize>()
+                    .map_err(|_| Error::DefaultError("Parsing error".to_string()))?
             }
         } else {
             print_notice_and_exit(Some(format!("Unrecognized argument: {arg}")))

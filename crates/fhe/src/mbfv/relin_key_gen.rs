@@ -1,5 +1,9 @@
-use std::marker::PhantomData;
-use std::sync::Arc;
+use core::marker::PhantomData;
+extern crate alloc;
+use alloc::boxed::Box;
+use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec::Vec;
 
 use crate::bfv::{BfvParameters, KeySwitchingKey, RelinearizationKey, SecretKey};
 use crate::errors::Result;
@@ -32,7 +36,7 @@ pub struct RelinKeyShare<R: Round = R1> {
 /// rounds:
 ///
 /// ```rust
-/// use std::sync::Arc;
+/// extern crate alloc;
 /// use fhe::bfv::{BfvParametersBuilder, RelinearizationKey, SecretKey};
 /// use fhe::mbfv::{Aggregate, CommonRandomPoly, RelinKeyGenerator, RelinKeyShare, round::*};
 ///
@@ -368,7 +372,11 @@ impl Aggregate<RelinKeyShare<R2>> for RelinearizationKey {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
+    extern crate alloc;
+    use alloc::string::ToString;
+    use alloc::sync::Arc;
+    use alloc::vec;
+    use alloc::vec::Vec;
 
     use fhe_traits::{FheDecoder, FheEncoder, FheEncrypter};
     use rand::thread_rng;

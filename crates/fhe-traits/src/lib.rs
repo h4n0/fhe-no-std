@@ -4,7 +4,9 @@
 
 //! Traits for Fully Homomorphic Encryption
 
-use std::sync::Arc;
+extern crate alloc;
+use alloc::sync::Arc;
+use alloc::string::ToString;
 
 use rand::{CryptoRng, RngCore};
 

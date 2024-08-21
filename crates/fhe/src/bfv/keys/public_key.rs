@@ -8,7 +8,11 @@ use fhe_math::rq::{Poly, Representation};
 use fhe_traits::{DeserializeParametrized, FheEncrypter, FheParametrized, Serialize};
 use prost::Message;
 use rand::{CryptoRng, RngCore};
-use std::sync::Arc;
+extern crate alloc;
+use alloc::sync::Arc;
+use alloc::string::ToString;
+use alloc::vec;
+use alloc::vec::Vec;
 use zeroize::Zeroizing;
 
 use super::SecretKey;
@@ -139,12 +143,12 @@ impl DeserializeParametrized for PublicKey {
 mod tests {
     use super::PublicKey;
     use crate::bfv::{parameters::BfvParameters, Encoding, Plaintext, SecretKey};
+    use crate::Error;
     use fhe_traits::{DeserializeParametrized, FheDecrypter, FheEncoder, FheEncrypter, Serialize};
     use rand::thread_rng;
-    use std::error::Error;
 
     #[test]
-    fn keygen() -> Result<(), Box<dyn Error>> {
+    fn keygen() -> Result<(), Error> {
         let mut rng = thread_rng();
         let params = BfvParameters::default_arc(1, 16);
         let sk = SecretKey::random(&params, &mut rng);
@@ -158,7 +162,7 @@ mod tests {
     }
 
     #[test]
-    fn encrypt_decrypt() -> Result<(), Box<dyn Error>> {
+    fn encrypt_decrypt() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(1, 16),
@@ -177,7 +181,7 @@ mod tests {
                     let ct = pk.try_encrypt(&pt, &mut rng)?;
                     let pt2 = sk.try_decrypt(&ct)?;
 
-                    println!("Noise: {}", unsafe { sk.measure_noise(&ct)? });
+                    //println!("Noise: {}", unsafe { sk.measure_noise(&ct)? });
                     assert_eq!(pt2, pt);
                 }
             }
@@ -187,7 +191,7 @@ mod tests {
     }
 
     #[test]
-    fn test_serialize() -> Result<(), Box<dyn Error>> {
+    fn test_serialize() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(1, 16),

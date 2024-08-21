@@ -3,13 +3,18 @@
 use crate::bfv::{keys::GaloisKey, traits::TryConvertFrom, BfvParameters, Ciphertext, SecretKey};
 use crate::proto::bfv::{EvaluationKey as EvaluationKeyProto, GaloisKey as GaloisKeyProto};
 use crate::{Error, Result};
+use alloc::vec;
+use alloc::vec::Vec;
 use fhe_math::rq::{traits::TryConvertFrom as TryConvertFromPoly, Poly, Representation};
 use fhe_math::zq::Modulus;
 use fhe_traits::{DeserializeParametrized, FheParametrized, Serialize};
+use hashbrown::HashMap;
+use hashbrown::HashSet;
 use prost::Message;
 use rand::{CryptoRng, RngCore};
-use std::collections::{HashMap, HashSet};
-use std::sync::Arc;
+extern crate alloc;
+use alloc::string::ToString;
+use alloc::sync::Arc;
 use zeroize::{Zeroize, ZeroizeOnDrop};
 
 /// Evaluation key for the BFV encryption scheme.
@@ -433,15 +438,20 @@ mod tests {
     use super::{EvaluationKey, EvaluationKeyBuilder};
     use crate::bfv::{traits::TryConvertFrom, BfvParameters, Encoding, Plaintext, SecretKey};
     use crate::proto::bfv::EvaluationKey as LeveledEvaluationKeyProto;
+    use crate::Error;
+    extern crate alloc;
+    use alloc::string::ToString;
+    use alloc::vec;
+    use alloc::vec::Vec;
+    use core::cmp::min;
     use fhe_traits::{
         DeserializeParametrized, FheDecoder, FheDecrypter, FheEncoder, FheEncrypter, Serialize,
     };
     use itertools::izip;
     use rand::thread_rng;
-    use std::{cmp::min, error::Error};
 
     #[test]
-    fn builder() -> Result<(), Box<dyn Error>> {
+    fn builder() -> Result<(), Error> {
         let mut rng = thread_rng();
         let params = BfvParameters::default_arc(6, 16);
         let sk = SecretKey::random(&params, &mut rng);
@@ -514,7 +524,7 @@ mod tests {
     }
 
     #[test]
-    fn inner_sum() -> Result<(), Box<dyn Error>> {
+    fn inner_sum() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(6, 16),
@@ -558,7 +568,7 @@ mod tests {
     }
 
     #[test]
-    fn row_rotation() -> Result<(), Box<dyn Error>> {
+    fn row_rotation() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(6, 16),
@@ -603,7 +613,7 @@ mod tests {
     }
 
     #[test]
-    fn column_rotation() -> Result<(), Box<dyn Error>> {
+    fn column_rotation() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(6, 16),
@@ -658,7 +668,7 @@ mod tests {
     }
 
     #[test]
-    fn expansion() -> Result<(), Box<dyn Error>> {
+    fn expansion() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(6, 16),
@@ -701,7 +711,7 @@ mod tests {
                                         Encoding::poly_at_level(ciphertext_level)
                                     )?
                                 );
-                                println!("Noise: {:?}", unsafe { sk.measure_noise(ct2i) })
+                                ////println!("Noise: {:?}", unsafe { sk.measure_noise(ct2i) })
                             }
                         }
                     }
@@ -712,7 +722,7 @@ mod tests {
     }
 
     #[test]
-    fn proto_conversion() -> Result<(), Box<dyn Error>> {
+    fn proto_conversion() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(1, 16),
@@ -756,7 +766,7 @@ mod tests {
     }
 
     #[test]
-    fn serialize() -> Result<(), Box<dyn Error>> {
+    fn serialize() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(1, 16),

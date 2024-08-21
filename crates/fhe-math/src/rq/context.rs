@@ -2,6 +2,8 @@ use itertools::Itertools;
 use num_bigint::BigUint;
 use std::{fmt::Debug, sync::Arc};
 
+extern crate alloc;
+
 use crate::{ntt::NttOperator, rns::RnsContext, zq::Modulus, Error, Result};
 
 /// Struct that holds the context associated with elements in rq.
@@ -19,7 +21,7 @@ pub struct Context {
 }
 
 impl Debug for Context {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut alloc::fmt::Formatter<'_>) -> alloc::fmt::Result {
         f.debug_struct("Context")
             .field("moduli", &self.moduli)
             // .field("q", &self.q)
@@ -155,7 +157,10 @@ impl Context {
 
 #[cfg(test)]
 mod tests {
-    use std::{error::Error, sync::Arc};
+    extern crate alloc;
+    use crate::Error;
+    use alloc::sync::Arc;
+use alloc::string::ToString;
 
     use crate::ntt::supports_ntt;
     use crate::rq::Context;
@@ -189,7 +194,7 @@ mod tests {
     }
 
     #[test]
-    fn next_context() -> Result<(), Box<dyn Error>> {
+    fn next_context() -> Result<(), Error> {
         // A context should have a children pointing to a context with one less modulus.
         let context = Arc::new(Context::new(MODULI, 16)?);
         assert_eq!(
@@ -210,7 +215,7 @@ mod tests {
     }
 
     #[test]
-    fn niterations_to() -> Result<(), Box<dyn Error>> {
+    fn niterations_to() -> Result<(), Error> {
         // A context should have a children pointing to a context with one less modulus.
         let context = Arc::new(Context::new(MODULI, 16)?);
 

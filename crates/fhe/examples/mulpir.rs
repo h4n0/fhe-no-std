@@ -11,19 +11,20 @@ mod util;
 
 use clap::Parser;
 use fhe::bfv;
+use fhe::Error;
 use fhe_traits::{
     DeserializeParametrized, FheDecoder, FheDecrypter, FheEncoder, FheEncrypter, Serialize,
 };
 use fhe_util::{inverse, transcode_to_bytes};
 use indicatif::HumanBytes;
 use rand::{rngs::OsRng, thread_rng, RngCore};
-use std::{error::Error, time::Instant};
+use std::time::Instant;
 use util::{
     encode_database, generate_database, number_elements_per_plaintext,
     timeit::{timeit, timeit_n},
 };
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), Error> {
     // We use the parameters reported in Table 1 of https://eprint.iacr.org/2019/1483.pdf.
     let degree = 8192;
     let plaintext_modulus: u64 = (1 << 20) + (1 << 19) + (1 << 17) + (1 << 16) + (1 << 14) + 1;
@@ -129,7 +130,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 elements_size,
             );
         let mut pt = vec![0u64; dim1 + dim2];
-        let inv = inverse(1 << level, plaintext_modulus).ok_or("No inverse")?;
+        let inv = inverse(1 << level, plaintext_modulus)
+            .ok_or(Error::DefaultError("No inverse".to_string()))?;
         pt[query_index / dim2] = inv;
         pt[dim1 + (query_index % dim2)] = inv;
         let query_pt = bfv::Plaintext::try_encode(&pt, bfv::Encoding::poly_at_level(1), &params)?;

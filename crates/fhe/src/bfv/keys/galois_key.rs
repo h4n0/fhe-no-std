@@ -4,12 +4,15 @@ use super::key_switching_key::KeySwitchingKey;
 use crate::bfv::{traits::TryConvertFrom, BfvParameters, Ciphertext, SecretKey};
 use crate::proto::bfv::{GaloisKey as GaloisKeyProto, KeySwitchingKey as KeySwitchingKeyProto};
 use crate::{Error, Result};
+extern crate alloc;
+use alloc::sync::Arc;
+use alloc::string::ToString;
+use alloc::vec;
 use fhe_math::rq::{
     switcher::Switcher, traits::TryConvertFrom as TryConvertFromPoly, Poly, Representation,
     SubstitutionExponent,
 };
 use rand::{CryptoRng, RngCore};
-use std::sync::Arc;
 use zeroize::Zeroizing;
 
 /// Galois key for the BFV encryption scheme.
@@ -117,15 +120,18 @@ impl TryConvertFrom<&GaloisKeyProto> for GaloisKey {
 
 #[cfg(test)]
 mod tests {
+    extern crate alloc;
     use super::GaloisKey;
     use crate::bfv::{traits::TryConvertFrom, BfvParameters, Encoding, Plaintext, SecretKey};
     use crate::proto::bfv::GaloisKey as GaloisKeyProto;
+    use crate::Error;
+    use alloc::vec;
+    use alloc::vec::Vec;
     use fhe_traits::{FheDecoder, FheDecrypter, FheEncoder, FheEncrypter};
     use rand::thread_rng;
-    use std::error::Error;
 
     #[test]
-    fn relinearization() -> Result<(), Box<dyn Error>> {
+    fn relinearization() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(6, 16),
@@ -145,7 +151,7 @@ mod tests {
                     } else {
                         let gk = GaloisKey::new(&sk, i, 0, 0, &mut rng)?;
                         let ct2 = gk.relinearize(&ct)?;
-                        println!("Noise: {}", unsafe { sk.measure_noise(&ct2)? });
+                        //println!("Noise: {}", unsafe { sk.measure_noise(&ct2)? });
 
                         if i == 3 {
                             let pt = sk.try_decrypt(&ct2)?;
@@ -175,7 +181,7 @@ mod tests {
     }
 
     #[test]
-    fn proto_conversion() -> Result<(), Box<dyn Error>> {
+    fn proto_conversion() -> Result<(), Error> {
         let mut rng = thread_rng();
         for params in [
             BfvParameters::default_arc(6, 16),
