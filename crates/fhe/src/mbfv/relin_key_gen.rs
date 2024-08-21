@@ -37,10 +37,13 @@ pub struct RelinKeyShare<R: Round = R1> {
 ///
 /// ```rust
 /// extern crate alloc;
+/// use alloc::sync::Arc;
+/// use alloc::vec;
+/// use fhe::Error;
 /// use fhe::bfv::{BfvParametersBuilder, RelinearizationKey, SecretKey};
 /// use fhe::mbfv::{Aggregate, CommonRandomPoly, RelinKeyGenerator, RelinKeyShare, round::*};
 ///
-/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// # fn main() -> Result<(), Error> {
 /// let parameters = BfvParametersBuilder::new()
 ///         .set_degree(4096)
 ///         .set_moduli(&[0xffffee001, 0xffffc4001, 0x1ffffe0001])

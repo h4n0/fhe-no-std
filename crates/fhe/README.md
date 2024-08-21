@@ -18,7 +18,7 @@ One ciphertext encrypts the value `20` using the secret key, and one ciphertext 
 use fhe::bfv::{BfvParametersBuilder, Ciphertext, Encoding, Plaintext, PublicKey, SecretKey};
 use fhe_traits::*;
 use rand::{rngs::OsRng, thread_rng};
-use core::error::Error;
+use fhe::Error;
 
 fn main() -> Result<(), Error> {
     let parameters = BfvParametersBuilder::new()
