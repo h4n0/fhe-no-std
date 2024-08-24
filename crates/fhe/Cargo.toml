@@ -48,7 +48,7 @@ indicatif.workspace = true
 itertools.workspace = true
 log.workspace = true
 ndarray.workspace = true
-rand.workspace = true
+rand = {workspace = true, features = ["std"]}
 
 [[bench]]
 name = "bfv"
