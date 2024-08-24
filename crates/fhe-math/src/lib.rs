@@ -1,3 +1,4 @@
+#![no_std]
 #![crate_name = "fhe_math"]
 #![crate_type = "lib"]
 #![warn(missing_docs, unused_imports)]

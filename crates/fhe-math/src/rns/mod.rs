@@ -3,16 +3,22 @@
 //! Residue-Number System operations.
 
 use crate::{zq::Modulus, Error, Result};
+use alloc::fmt::Debug;
+use core::cmp::Ordering;
 use itertools::izip;
 use ndarray::ArrayView1;
 use num_bigint::BigUint;
 use num_bigint_dig::{BigInt as BigIntDig, BigUint as BigUintDig, ExtendedGcd, ModInverse};
 use num_traits::{cast::ToPrimitive, One, Zero};
-use std::{cmp::Ordering, fmt::Debug};
+extern crate alloc;
+use alloc::borrow::ToOwned;
+use alloc::boxed::Box;
+use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec;
+use alloc::vec::Vec;
 
 mod scaler;
-
-extern crate alloc;
 
 pub use scaler::{RnsScaler, ScalingFactor};
 
@@ -149,6 +155,13 @@ mod tests {
     use ndarray::ArrayView1;
     use num_bigint::BigUint;
     use rand::RngCore;
+    extern crate alloc;
+    use alloc::borrow::ToOwned;
+    use alloc::boxed::Box;
+    use alloc::string::ToString;
+    use alloc::sync::Arc;
+    use alloc::vec;
+    use alloc::vec::Vec;
 
     #[test]
     fn constructor() {

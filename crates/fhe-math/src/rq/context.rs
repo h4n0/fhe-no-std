@@ -1,8 +1,12 @@
+use alloc::{fmt::Debug, sync::Arc};
 use itertools::Itertools;
 use num_bigint::BigUint;
-use std::{fmt::Debug, sync::Arc};
-
 extern crate alloc;
+use alloc::borrow::ToOwned;
+use alloc::boxed::Box;
+use alloc::string::ToString;
+use alloc::vec;
+use alloc::vec::Vec;
 
 use crate::{ntt::NttOperator, rns::RnsContext, zq::Modulus, Error, Result};
 

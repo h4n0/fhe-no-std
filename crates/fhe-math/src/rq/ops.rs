@@ -10,6 +10,13 @@ use itertools::{izip, Itertools};
 use ndarray::Array2;
 use num_bigint::BigUint;
 use zeroize::Zeroize;
+extern crate alloc;
+use alloc::borrow::ToOwned;
+use alloc::boxed::Box;
+use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec;
+use alloc::vec::Vec;
 
 impl AddAssign<&Poly> for Poly {
     fn add_assign(&mut self, p: &Poly) {
@@ -459,8 +466,9 @@ where
 mod tests {
     extern crate alloc;
     use crate::Error;
-    
+
     use alloc::sync::Arc;
+    use alloc::vec::Vec;
     use itertools::{izip, Itertools};
     use rand::thread_rng;
 

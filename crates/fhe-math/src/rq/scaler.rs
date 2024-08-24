@@ -146,6 +146,8 @@ mod tests {
     use num_bigint::BigUint;
     use num_traits::{One, Zero};
     use rand::thread_rng;
+    extern crate alloc;
+    use alloc::vec::Vec;
 
     // Moduli to be used in tests.
     static Q: &[u64; 3] = &[

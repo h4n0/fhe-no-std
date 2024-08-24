@@ -3,12 +3,19 @@
 //! RNS scaler inspired from Remark 3.2 of <https://eprint.iacr.org/2021/204.pdf>.
 
 use super::RnsContext;
+use core::cmp::min;
+extern crate alloc;
+use alloc::borrow::ToOwned;
+use alloc::boxed::Box;
+use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec;
+use alloc::vec::Vec;
 use ethnum::{u256, U256};
 use itertools::{izip, Itertools};
 use ndarray::{ArrayView1, ArrayViewMut1};
 use num_bigint::BigUint;
 use num_traits::{One, ToPrimitive, Zero};
-use std::{cmp::min, sync::Arc};
 
 /// Scaling factor when performing a RNS scaling.
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
@@ -348,6 +355,7 @@ mod tests {
 
     use super::RnsScaler;
     use crate::rns::{scaler::ScalingFactor, RnsContext};
+    use alloc::vec;
     use ndarray::ArrayView1;
     use num_bigint::BigUint;
     use num_traits::ToPrimitive;

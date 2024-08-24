@@ -22,8 +22,9 @@ use rand::{CryptoRng, RngCore, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use sha2::{Digest, Sha256};
 extern crate alloc;
-use alloc::sync::Arc;
 use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec::Vec;
 use zeroize::{Zeroize, Zeroizing};
 
 /// Possible representations of the underlying polynomial.
@@ -592,8 +593,10 @@ mod tests {
     use rand_chacha::ChaCha8Rng;
     extern crate alloc;
     use crate::Error;
+    use alloc::string::ToString;
     use alloc::sync::Arc;
-use alloc::string::ToString;
+    use alloc::vec;
+    use alloc::vec::Vec;
 
     // Moduli to be used in tests.
     const MODULI: &[u64; 5] = &[

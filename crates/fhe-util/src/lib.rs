@@ -1,3 +1,4 @@
+#![no_std]
 #![crate_name = "fhe_util"]
 #![crate_type = "lib"]
 #![warn(missing_docs, unused_imports)]
@@ -11,6 +12,8 @@ use rand::{CryptoRng, RngCore};
 
 use num_bigint_dig::{prime::probably_prime, BigUint, ModInverse};
 use num_traits::{cast::ToPrimitive, PrimInt};
+extern crate alloc;
+use alloc::vec::Vec;
 
 /// Returns whether the modulus p is prime; this function is 100% accurate.
 pub fn is_prime(p: u64) -> bool {

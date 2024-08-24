@@ -9,8 +9,9 @@ use itertools::{izip, Itertools};
 use ndarray::{Array2, ArrayView, Axis};
 use num_bigint::BigUint;
 extern crate alloc;
-use alloc::sync::Arc;
 use alloc::string::ToString;
+use alloc::sync::Arc;
+use alloc::vec::Vec;
 use zeroize::{Zeroize, Zeroizing};
 
 impl From<&Poly> for Rq {
@@ -435,8 +436,10 @@ mod tests {
     use rand::thread_rng;
     extern crate alloc;
     use crate::Error;
+    use alloc::string::ToString;
     use alloc::sync::Arc;
-use alloc::string::ToString;
+    use alloc::vec;
+    use alloc::vec::Vec;
 
     static MODULI: &[u64; 3] = &[1153, 4611686018326724609, 4611686018309947393];
 

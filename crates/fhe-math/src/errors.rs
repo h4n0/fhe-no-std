@@ -1,9 +1,11 @@
+extern crate alloc;
+use alloc::string::String;
 use thiserror_no_std::Error;
 
 use crate::rq::Representation;
 
 /// The Result type for this library.
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = core::result::Result<T, Error>;
 
 /// Enum encapsulation all the possible errors from this library.
 #[derive(Debug, Error, PartialEq, Eq)]
@@ -41,6 +43,8 @@ pub enum Error {
 #[cfg(test)]
 mod tests {
     use crate::{rq::Representation, Error};
+    use alloc::string::ToString;
+    extern crate alloc;
 
     #[test]
     fn error_strings() {

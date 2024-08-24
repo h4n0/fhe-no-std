@@ -1,3 +1,4 @@
+#![no_std]
 #![crate_name = "fhe_traits"]
 #![crate_type = "lib"]
 #![warn(missing_docs, unused_imports)]
@@ -6,6 +7,7 @@
 
 extern crate alloc;
 use alloc::sync::Arc;
+use alloc::vec::Vec;
 
 use rand::{CryptoRng, RngCore};
 

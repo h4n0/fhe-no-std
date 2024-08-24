@@ -6,6 +6,7 @@ use alloc::sync::Arc;
 
 use super::{traits::TryConvertFrom, Context, Poly};
 use crate::{proto::rq::Rq, Error};
+use alloc::vec::Vec;
 use fhe_traits::{DeserializeWithContext, Serialize};
 use prost::Message;
 
@@ -30,7 +31,7 @@ mod tests {
     use crate::Error;
 
     extern crate alloc;
-    
+
     use alloc::sync::Arc;
 
     use fhe_traits::{DeserializeWithContext, Serialize};
