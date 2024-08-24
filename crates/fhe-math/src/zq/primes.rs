@@ -60,12 +60,12 @@ pub fn generate_prime(num_bits: usize, modulo: u64, upper_bound: u64) -> Option<
 mod tests {
     use super::generate_prime;
     extern crate alloc;
-    use alloc::borrow::ToOwned;
-    use alloc::boxed::Box;
-    use alloc::string::ToString;
-    use alloc::sync::Arc;
+    
+    
+    
+    
     use alloc::vec;
-    use alloc::vec::Vec;
+    
 
     // Verifies that the same moduli as in the NFLlib library are generated.
     // <https://github.com/quarkslab/NFLlib/blob/master/include/nfl/params.hpp>

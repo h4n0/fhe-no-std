@@ -11,10 +11,7 @@ use ndarray::Array2;
 use num_bigint::BigUint;
 use zeroize::Zeroize;
 extern crate alloc;
-use alloc::borrow::ToOwned;
-use alloc::boxed::Box;
 use alloc::string::ToString;
-use alloc::sync::Arc;
 use alloc::vec;
 use alloc::vec::Vec;
 
