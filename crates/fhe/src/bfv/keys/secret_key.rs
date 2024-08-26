@@ -6,7 +6,7 @@ use fhe_math::{
     rq::{traits::TryConvertFrom, Poly, Representation},
     zq::Modulus,
 };
-use fhe_traits::{FheDecrypter, FheEncrypter, FheParametrized};
+use fhe_traits::{DeserializeParametrized, FheDecrypter, FheEncrypter, FheParametrized, Serialize};
 use fhe_util::sample_vec_cbd;
 use itertools::Itertools;
 use num_bigint::BigUint;
@@ -139,6 +139,67 @@ impl FheParametrized for SecretKey {
     type Parameters = BfvParameters;
 }
 
+impl Serialize for SecretKey {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+
+        // Serialize the coefficients
+        let coeffs_len = self.coeffs.len() as u64; // Length of coeffs as u64
+        bytes.extend_from_slice(&coeffs_len.to_le_bytes()); // Add the length
+        for coeff in self.coeffs.iter() {
+            bytes.extend_from_slice(&coeff.to_le_bytes());
+        }
+
+        bytes
+    }
+}
+
+impl DeserializeParametrized for SecretKey {
+    type Error = Error;
+
+    fn from_bytes(bytes: &[u8], par: &Arc<Self::Parameters>) -> Result<Self> {
+        let mut cursor = 0;
+
+        // Ensure we have at least 8 bytes to read the coeffs_len
+        if bytes.len() < cursor + 8 {
+            return Err(Error::DefaultError(
+                "Invalid byte length for SecretKey deserialization".to_string(),
+            ));
+        }
+
+        // Deserialize the length of coeffs
+        let coeffs_len = u64::from_le_bytes(bytes[cursor..cursor + 8].try_into().map_err(|_| {
+            Error::DefaultError("Failed to convert bytes to coeffs_len".to_string())
+        })?) as usize;
+        cursor += 8;
+
+        // Ensure that the remaining byte slice has enough data for all coefficients
+        let required_len = coeffs_len.checked_mul(8).ok_or_else(|| {
+            Error::DefaultError("Coefficient length multiplication overflow".to_string())
+        })?;
+        if bytes.len() < cursor + required_len {
+            return Err(Error::DefaultError(
+                "Invalid byte length for SecretKey deserialization".to_string(),
+            ));
+        }
+
+        // Deserialize the coefficients
+        let mut coeffs = Vec::with_capacity(coeffs_len);
+        for _ in 0..coeffs_len {
+            let coeff = i64::from_le_bytes(bytes[cursor..cursor + 8].try_into().map_err(|_| {
+                Error::DefaultError("Failed to convert bytes to coefficient".to_string())
+            })?);
+            coeffs.push(coeff);
+            cursor += 8;
+        }
+
+        // Return the deserialized SecretKey with the externally provided parameters
+        Ok(Self {
+            par: par.clone(),
+            coeffs: coeffs.into_boxed_slice(),
+        })
+    }
+}
 impl FheEncrypter<Plaintext, Ciphertext> for SecretKey {
     type Error = Error;
 
