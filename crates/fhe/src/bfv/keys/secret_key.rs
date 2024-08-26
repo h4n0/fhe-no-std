@@ -164,19 +164,25 @@ impl DeserializeParametrized for SecretKey {
     fn from_bytes(bytes: &[u8], par: &Arc<Self::Parameters>) -> Result<Self> {
         let mut cursor = 0;
 
-        // Deserialize the length of coeffs
+        // Ensure we have at least 8 bytes to read the coeffs_len
         if bytes.len() < cursor + 8 {
             return Err(Error::DefaultError(
                 "Invalid byte length for SecretKey deserialization".to_string(),
             ));
         }
-        let coeffs_len = u64::from_le_bytes(bytes[cursor..cursor + 8].try_into().unwrap()) as usize;
+
+        // Read the length of coeffs
+        let coeffs_len = u64::from_le_bytes(bytes[cursor..cursor + 8].try_into().map_err(|_| {
+            Error::DefaultError("Failed to convert bytes to coeffs_len".to_string())
+        })?) as usize;
         cursor += 8;
 
-        // Ensure that the byte slice is long enough to contain all coefficients
+        // Calculate the required length for all coefficients
         let required_len = coeffs_len.checked_mul(8).ok_or_else(|| {
             Error::DefaultError("Coefficient length multiplication overflow".to_string())
         })?;
+
+        // Ensure that the remaining byte slice has enough data for all coefficients
         if bytes.len() < cursor + required_len {
             return Err(Error::DefaultError(
                 "Invalid byte length for SecretKey deserialization".to_string(),
@@ -186,7 +192,9 @@ impl DeserializeParametrized for SecretKey {
         // Deserialize the coefficients
         let mut coeffs = Vec::with_capacity(coeffs_len);
         for _ in 0..coeffs_len {
-            let coeff = i64::from_le_bytes(bytes[cursor..cursor + 8].try_into().unwrap());
+            let coeff = i64::from_le_bytes(bytes[cursor..cursor + 8].try_into().map_err(|_| {
+                Error::DefaultError("Failed to convert bytes to coefficient".to_string())
+            })?);
             coeffs.push(coeff);
             cursor += 8;
         }
