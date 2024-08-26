@@ -16,6 +16,9 @@ bench = false  # Disable default bench (we use criterion)
 concrete-ntt = []
 concrete-ntt-nightly = ["concrete-ntt/nightly"]
 
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
 [dependencies]
 fhe-traits = { version = "^0.1.0-beta.8", path = "../fhe-traits" }
 fhe-util = { version = "^0.1.0-beta.8", path = "../fhe-util" }

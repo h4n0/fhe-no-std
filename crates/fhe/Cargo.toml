@@ -12,6 +12,9 @@ rust-version.workspace = true
 [lib]
 bench = false # Disable default bench (we use criterion)
 
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
 [features]
 default = []
 std = []
