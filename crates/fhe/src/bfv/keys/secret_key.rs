@@ -174,7 +174,10 @@ impl DeserializeParametrized for SecretKey {
         cursor += 8;
 
         // Ensure that the byte slice is long enough to contain all coefficients
-        if bytes.len() < cursor + (coeffs_len * 8) {
+        let required_len = coeffs_len.checked_mul(8).ok_or_else(|| {
+            Error::DefaultError("Coefficient length multiplication overflow".to_string())
+        })?;
+        if bytes.len() < cursor + required_len {
             return Err(Error::DefaultError(
                 "Invalid byte length for SecretKey deserialization".to_string(),
             ));
