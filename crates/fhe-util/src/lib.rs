@@ -8,7 +8,7 @@
 #[cfg(test)]
 extern crate proptest;
 
-use rand::{CryptoRng, RngCore};
+use rand::RngCore;
 
 use num_bigint_dig::{prime::probably_prime, BigUint, ModInverse};
 use num_traits::{cast::ToPrimitive, PrimInt};
@@ -22,7 +22,7 @@ pub fn is_prime(p: u64) -> bool {
 
 /// Sample a vector of independent centered binomial distributions of a given
 /// variance. Returns an error if the variance is strictly larger than 16.
-pub fn sample_vec_cbd<R: RngCore + CryptoRng>(
+pub fn sample_vec_cbd<R: RngCore>(
     vector_size: usize,
     variance: usize,
     rng: &mut R,

@@ -10,7 +10,7 @@ use fhe_traits::{DeserializeParametrized, FheDecrypter, FheEncrypter, FheParamet
 use fhe_util::sample_vec_cbd;
 use itertools::Itertools;
 use num_bigint::BigUint;
-use rand::{rngs::SmallRng, CryptoRng, Rng, RngCore, SeedableRng};
+use rand::{CryptoRng, Rng, RngCore, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 extern crate alloc;
 use alloc::borrow::ToOwned;
@@ -32,7 +32,7 @@ pub struct SecretKey {
 
 impl SecretKey {
     /// Generate a random [`SecretKey`].
-    pub fn random<R: RngCore + CryptoRng>(par: &Arc<BfvParameters>, rng: &mut R) -> Self {
+    pub fn random<R: RngCore>(par: &Arc<BfvParameters>, rng: &mut R) -> Self {
         let s_coefficients = sample_vec_cbd(par.degree(), par.variance, rng).unwrap();
         Self::new(s_coefficients, par)
     }
@@ -101,7 +101,7 @@ impl SecretKey {
         let level = self.par.level_of_ctx(p.ctx())?;
 
         let mut seed = <ChaCha8Rng as SeedableRng>::Seed::default();
-        SmallRng::seed_from_u64(23934248787).fill(&mut seed);
+        rng.fill(&mut seed);
 
         // Let's create a secret key with the ciphertext context
         let mut s = Zeroizing::new(Poly::try_convert_from(
