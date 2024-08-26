@@ -143,10 +143,6 @@ impl Serialize for SecretKey {
     fn to_bytes(&self) -> Vec<u8> {
         let mut bytes = Vec::new();
 
-        // Serialize the BfvParameters (assuming BfvParameters implements Serialize)
-        let par_bytes = self.par.to_bytes();
-        bytes.extend_from_slice(&par_bytes);
-
         // Serialize the coefficients
         let coeffs_len = self.coeffs.len() as u64; // Length of coeffs as u64
         bytes.extend_from_slice(&coeffs_len.to_le_bytes()); // Add the length
@@ -171,25 +167,16 @@ impl DeserializeParametrized for SecretKey {
             ));
         }
 
-        // Read the length of coeffs
+        // Deserialize the length of coeffs
         let coeffs_len = u64::from_le_bytes(bytes[cursor..cursor + 8].try_into().map_err(|_| {
             Error::DefaultError("Failed to convert bytes to coeffs_len".to_string())
         })?) as usize;
         cursor += 8;
 
-        // Check if coeffs_len is unreasonably large
-        if coeffs_len > 2048 {
-            return Err(Error::DefaultError(
-                "Coefficient length is too large".to_string(),
-            ));
-        }
-
-        // Calculate the required length for all coefficients
+        // Ensure that the remaining byte slice has enough data for all coefficients
         let required_len = coeffs_len.checked_mul(8).ok_or_else(|| {
             Error::DefaultError("Coefficient length multiplication overflow".to_string())
         })?;
-
-        // Ensure that the remaining byte slice has enough data for all coefficients
         if bytes.len() < cursor + required_len {
             return Err(Error::DefaultError(
                 "Invalid byte length for SecretKey deserialization".to_string(),
@@ -206,13 +193,13 @@ impl DeserializeParametrized for SecretKey {
             cursor += 8;
         }
 
+        // Return the deserialized SecretKey with the externally provided parameters
         Ok(Self {
             par: par.clone(),
             coeffs: coeffs.into_boxed_slice(),
         })
     }
 }
-
 impl FheEncrypter<Plaintext, Ciphertext> for SecretKey {
     type Error = Error;
 
