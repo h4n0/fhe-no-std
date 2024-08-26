@@ -10,7 +10,7 @@ use fhe_traits::{DeserializeParametrized, FheDecrypter, FheEncrypter, FheParamet
 use fhe_util::sample_vec_cbd;
 use itertools::Itertools;
 use num_bigint::BigUint;
-use rand::{CryptoRng, Rng, RngCore, SeedableRng};
+use rand::{Rng, RngCore, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 extern crate alloc;
 use alloc::borrow::ToOwned;
@@ -91,11 +91,7 @@ impl SecretKey {
         Ok(noise)
     }
 
-    pub(crate) fn encrypt_poly<R: RngCore + CryptoRng>(
-        &self,
-        p: &Poly,
-        rng: &mut R,
-    ) -> Result<Ciphertext> {
+    pub(crate) fn encrypt_poly<R: RngCore>(&self, p: &Poly, rng: &mut R) -> Result<Ciphertext> {
         assert_eq!(p.representation(), &Representation::Ntt);
 
         let level = self.par.level_of_ctx(p.ctx())?;
@@ -203,11 +199,7 @@ impl DeserializeParametrized for SecretKey {
 impl FheEncrypter<Plaintext, Ciphertext> for SecretKey {
     type Error = Error;
 
-    fn try_encrypt<R: RngCore + CryptoRng>(
-        &self,
-        pt: &Plaintext,
-        rng: &mut R,
-    ) -> Result<Ciphertext> {
+    fn try_encrypt<R: RngCore>(&self, pt: &Plaintext, rng: &mut R) -> Result<Ciphertext> {
         assert_eq!(self.par, pt.par);
         let m = Zeroizing::new(pt.to_poly());
         self.encrypt_poly(m.as_ref(), rng)

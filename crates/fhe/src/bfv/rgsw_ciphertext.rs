@@ -12,7 +12,7 @@ use fhe_traits::{
     DeserializeParametrized, FheCiphertext, FheEncrypter, FheParametrized, Serialize,
 };
 use prost::Message;
-use rand::{CryptoRng, RngCore};
+use rand::RngCore;
 use zeroize::Zeroizing;
 
 use super::{
@@ -83,11 +83,7 @@ impl FheCiphertext for RGSWCiphertext {}
 impl FheEncrypter<Plaintext, RGSWCiphertext> for SecretKey {
     type Error = Error;
 
-    fn try_encrypt<R: RngCore + CryptoRng>(
-        &self,
-        pt: &Plaintext,
-        rng: &mut R,
-    ) -> Result<RGSWCiphertext> {
+    fn try_encrypt<R: RngCore>(&self, pt: &Plaintext, rng: &mut R) -> Result<RGSWCiphertext> {
         let level = pt.level;
         let ctx = self.par.ctx_at_level(level)?;
 

@@ -279,7 +279,7 @@ impl Poly {
     /// representation.
     ///
     /// Returns an error if the variance does not belong to [1, ..., 16].
-    pub fn small<T: RngCore + CryptoRng>(
+    pub fn small<T: RngCore>(
         ctx: &Arc<Context>,
         representation: Representation,
         variance: usize,

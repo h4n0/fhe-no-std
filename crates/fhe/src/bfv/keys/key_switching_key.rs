@@ -12,12 +12,12 @@ use fhe_math::{
 use fhe_traits::{DeserializeWithContext, Serialize};
 use itertools::{izip, Itertools};
 use num_bigint::BigUint;
-use rand::{CryptoRng, Rng, RngCore, SeedableRng};
+use rand::{Rng, RngCore, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 extern crate alloc;
 use alloc::boxed::Box;
-use alloc::sync::Arc;
 use alloc::string::ToString;
+use alloc::sync::Arc;
 use alloc::vec;
 use alloc::vec::Vec;
 use zeroize::Zeroizing;
@@ -52,7 +52,7 @@ pub struct KeySwitchingKey {
 impl KeySwitchingKey {
     /// Generate a [`KeySwitchingKey`] to this [`SecretKey`] from a polynomial
     /// `from`.
-    pub fn new<R: RngCore + CryptoRng>(
+    pub fn new<R: RngCore>(
         sk: &SecretKey,
         from: &Poly,
         ciphertext_level: usize,
@@ -127,7 +127,7 @@ impl KeySwitchingKey {
     }
 
     /// Generate the c0's from the c1's and the secret key
-    fn generate_c0<R: RngCore + CryptoRng>(
+    fn generate_c0<R: RngCore>(
         sk: &SecretKey,
         from: &Poly,
         c1: &[Poly],
@@ -182,7 +182,7 @@ impl KeySwitchingKey {
     }
 
     /// Generate the c0's from the c1's and the secret key
-    fn generate_c0_decomposition<R: RngCore + CryptoRng>(
+    fn generate_c0_decomposition<R: RngCore>(
         sk: &SecretKey,
         from: &Poly,
         c1: &[Poly],
@@ -417,7 +417,7 @@ mod tests {
     use crate::proto::bfv::KeySwitchingKey as KeySwitchingKeyProto;
     use crate::Error;
     extern crate alloc;
-    
+
     use alloc::vec::Vec;
     use fhe_math::{
         rns::RnsContext,

@@ -7,7 +7,7 @@ use crate::{Error, Result};
 use fhe_math::rq::{Poly, Representation};
 use fhe_traits::{DeserializeParametrized, FheEncrypter, FheParametrized, Serialize};
 use prost::Message;
-use rand::{CryptoRng, RngCore};
+use rand::RngCore;
 extern crate alloc;
 use alloc::sync::Arc;
 use alloc::vec;
@@ -25,7 +25,7 @@ pub struct PublicKey {
 
 impl PublicKey {
     /// Generate a new [`PublicKey`] from a [`SecretKey`].
-    pub fn new<R: RngCore + CryptoRng>(sk: &SecretKey, rng: &mut R) -> Self {
+    pub fn new<R: RngCore>(sk: &SecretKey, rng: &mut R) -> Self {
         let zero = Plaintext::zero(Encoding::poly(), &sk.par).unwrap();
         let mut c: Ciphertext = sk.try_encrypt(&zero, rng).unwrap();
         // The polynomials of a public key should not allow for variable time
@@ -46,11 +46,7 @@ impl FheParametrized for PublicKey {
 impl FheEncrypter<Plaintext, Ciphertext> for PublicKey {
     type Error = Error;
 
-    fn try_encrypt<R: RngCore + CryptoRng>(
-        &self,
-        pt: &Plaintext,
-        rng: &mut R,
-    ) -> Result<Ciphertext> {
+    fn try_encrypt<R: RngCore>(&self, pt: &Plaintext, rng: &mut R) -> Result<Ciphertext> {
         let mut ct = self.c.clone();
         while ct.level != pt.level {
             ct.mod_switch_to_next_level()?;
