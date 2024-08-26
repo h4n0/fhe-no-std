@@ -177,6 +177,13 @@ impl DeserializeParametrized for SecretKey {
         })?) as usize;
         cursor += 8;
 
+        // Check if coeffs_len is unreasonably large
+        if coeffs_len > 2048 {
+            return Err(Error::DefaultError(
+                "Coefficient length is too large".to_string(),
+            ));
+        }
+
         // Calculate the required length for all coefficients
         let required_len = coeffs_len.checked_mul(8).ok_or_else(|| {
             Error::DefaultError("Coefficient length multiplication overflow".to_string())
