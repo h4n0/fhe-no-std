@@ -1,9 +1,6 @@
-# fhe.rs: Fully Homomorphic Encryption in Rust
+# fhe-no-std
 
-[![continuous integration](https://github.com/tlepoint/fhe.rs/actions/workflows/rust.yml/badge.svg?branch=main)](https://github.com/tlepoint/fhe.rs/actions/workflows/rust.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Code coverage](https://codecov.io/gh/tlepoint/fhe.rs/branch/main/graph/badge.svg?token=LCBSDMB5NS)](https://codecov.io/gh/tlepoint/fhe.rs)
-
-This repository contains the `fhe.rs` library, an experimental cryptographic library in Rust for Ring-LWE-based homomorphic encryption, developed by [Tancrède Lepoint](https://tancre.de).
-For more information about the library, see [fhe.rs](https://fhe.rs).
+This is the no-std version of [fhe.rs](https://github.com/tlepoint/fhe.rs). It is still WIP and please do NOT use it in production.
 
 The library features:
 
