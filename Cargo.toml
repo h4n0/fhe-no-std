@@ -25,7 +25,7 @@ indicatif = { version = "^0.17.8", default-features = false }
 itertools = { version = "^0.12.1", default-features = false, features = ["use_alloc"] }
 log = { version = "^0.4.22", default-features = false }
 ndarray = { version = "^0.15.6", default-features = false }
-num-bigint = { version = "^0.4.4", default-features = false }
+num-bigint = { version = "^0.4.6", default-features = false }
 num-bigint-dig = { version = "^0.8.4", default-features = false }
 num-traits = { version = "^0.2.19", default-features = false }
 proptest = { version = "^1.4.0" }
