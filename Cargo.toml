@@ -29,7 +29,7 @@ num-bigint = { version = "^0.4.4", default-features = false }
 num-bigint-dig = { version = "^0.8.4", default-features = false }
 num-traits = { version = "^0.2.18", default-features = false }
 proptest = { version = "^1.4.0" }
-prost = { version = "^0.12.4", default-features = false, features = ["prost-derive"] }
+prost = { version = "^0.12.6", default-features = false, features = ["prost-derive"] }
 prost-build = { version = "^0.12.3", default-features = false }
 rand = { version = "^0.8.5", features = ["small_rng"], default-features = false }
 rand_chacha = { version = "^0.3.1", default-features = false }
